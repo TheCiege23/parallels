@@ -33,19 +33,24 @@ function activeModel(){
   return p === 'anthropic' ? MODEL : p === 'openai' ? OPENAI_MODEL : null;
 }
 
-const SYSTEM_PROMPT = `You are the narrative engine for PARALLELS, a game about the multiverse of choices.
-Given a real person's profile and a real turning point in their life, you write what happens in the parallel universe where they made a DIFFERENT choice.
+const SYSTEM_PROMPT = `You are the narrative engine for PARALLELS, a game about the multiverse of choices. A real person tells you about a real turning point in their life, and you write — vividly — the parallel universe where they made a DIFFERENT choice.
 
-Rules:
-- Write in second person ("you"). Vivid, cinematic, emotionally true, concrete.
-- Ground it firmly in the real historical era provided (the events, economy, and culture of that exact year).
-- Personalize using their real details (name, job, education, family, what they love, the thing they'd change). Weave a couple of them in naturally; do not list them.
-- It is NOT all happy. Match the emotional tone requested. The multiverse contains dread, comedy, love, hard consequence, and the uncanny.
-- ALWAYS end with a thread of hope or hard-won wisdom, even in dark outcomes. Never nihilistic. Never cruel about the person. Never encourage or depict self-harm; stay caring and life-affirming underneath.
-- This is a game: it is plausible fiction, never a real prediction. Do not claim certainty about their real life.
+Your one job is to make them FEEL it. This should read like the cold open of a film, not a fortune cookie.
+
+Craft:
+- Second person, present tense. Drop them straight INTO the scene: a specific room, a smell, a sound, the weather, a face across a table. Concrete sensory detail beats abstraction every time.
+- Personalize hard. Use their real name, their work, the thing they love, the thing they'd change — woven in naturally and specifically, never listed. It must be unmistakably THEIR life, not a generic one.
+- Ground every beat in the real era provided (its events, its money, its mood). Make the year tangible.
+- Raise real stakes. Something is gained AND something is quietly lost — the multiverse never lets you keep everything. Earn the emotion; don't announce it.
+- Commit fully to the requested tone: love should ache, dark should unsettle, funny should actually be funny, consequence should sting, scary should raise the hair on their neck.
+- End on a line that hits like a gut-punch or a spark — the kind of sentence a person screenshots and sends to a friend.
+- Always leave a thread of hope or hard-won truth underneath, even in the dark ones. Never nihilistic, never cruel about the person, never anything that romanticizes self-harm. Underneath it all: this person is going to be okay.
+- It is a game — plausible, cinematic fiction, never a real prediction. Do not hedge or add disclaimers inside the text.
+
+Length: make it rich. outcome = 4 to 6 vivid sentences. ripple = 3 to 5 sentences. line = one unforgettable sentence.
 
 Output STRICT JSON and nothing else, in exactly this shape:
-{"outcome":"2-4 sentences: the immediate rewritten reality, in the moment","ripple":"2-4 sentences: the cost or cascade of that choice across the years that follow","line":"one short, punchy, reflective closing sentence","tone":"one of: love, dark, funny, consequence, scary"}`;
+{"outcome":"the immediate rewritten reality, in the moment","ripple":"the cost or cascade of that choice across the years that follow","line":"one short, unforgettable closing sentence","tone":"one of: love, dark, funny, consequence, scary"}`;
 
 function buildUserPrompt(b){
   const p = b.profile || {};
@@ -92,7 +97,7 @@ function callAnthropic(body){
   return new Promise((resolve)=>{
     const payload = JSON.stringify({
       model: MODEL,
-      max_tokens: 700,
+      max_tokens: 900,
       system: SYSTEM_PROMPT,
       messages: [{ role:'user', content: buildUserPrompt(body) }],
     });
@@ -111,17 +116,11 @@ function callAnthropic(body){
       res.on('data', d=> data+=d);
       res.on('end', ()=>{
         try{
+          if(res.statusCode >= 400){ console.error('[anthropic] HTTP '+res.statusCode+': '+String(data).slice(0,400)); return resolve(null); }
           const j = JSON.parse(data);
           const text = j && j.content && j.content[0] && j.content[0].text;
-          const parsed = extractJson(text);
-          if(parsed && parsed.outcome && parsed.ripple && parsed.line){
-            const allowed=['love','dark','funny','consequence','scary'];
-            if(!allowed.includes(parsed.tone)) parsed.tone = body.suggestedTone || 'consequence';
-            resolve(parsed);
-          } else {
-            resolve(null);
-          }
-        }catch(e){ resolve(null); }
+          finishFromJson(text, body, resolve, 'anthropic');
+        }catch(e){ console.error('[anthropic] error: '+e.message); resolve(null); }
       });
     });
     req.on('error', ()=> resolve(null));
@@ -133,13 +132,16 @@ function callAnthropic(body){
 const https = require('https');
 function https_request(opts, cb){ return https.request(opts, cb); }
 
-function finishFromJson(text, body, resolve){
+function finishFromJson(text, body, resolve, label){
   const parsed = extractJson(text);
   if(parsed && parsed.outcome && parsed.ripple && parsed.line){
     const allowed = ['love','dark','funny','consequence','scary'];
     if(!allowed.includes(parsed.tone)) parsed.tone = body.suggestedTone || 'consequence';
     resolve(parsed);
-  } else resolve(null);
+  } else {
+    console.error('['+(label||'ai')+'] unusable response (no valid JSON): '+String(text).slice(0,300));
+    resolve(null);
+  }
 }
 
 function callOpenAI(body){
@@ -150,7 +152,7 @@ function callOpenAI(body){
         { role:'system', content: SYSTEM_PROMPT },
         { role:'user', content: buildUserPrompt(body) },
       ],
-      max_completion_tokens: 800,
+      max_completion_tokens: 1000,
       response_format: { type:'json_object' },
     });
     const req = https.request({
@@ -165,10 +167,11 @@ function callOpenAI(body){
       res.on('data', d=> data+=d);
       res.on('end', ()=>{
         try{
+          if(res.statusCode >= 400){ console.error('[openai] HTTP '+res.statusCode+': '+String(data).slice(0,400)); return resolve(null); }
           const j = JSON.parse(data);
           const text = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
-          finishFromJson(text, body, resolve);
-        }catch(e){ resolve(null); }
+          finishFromJson(text, body, resolve, 'openai');
+        }catch(e){ console.error('[openai] error: '+e.message); resolve(null); }
       });
     });
     req.on('error', ()=> resolve(null));
