@@ -11,9 +11,27 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
-const API_KEY = process.env.ANTHROPIC_API_KEY || '';
-const MODEL = process.env.PARALLELS_MODEL || 'claude-3-5-haiku-latest';
 const PUBLIC_DIR = path.join(__dirname, 'public');
+
+// --- AI providers: use whichever key is present. Anthropic wins if both are set,
+//     unless AI_PROVIDER is set explicitly to 'openai' or 'anthropic'. ---
+const API_KEY = process.env.ANTHROPIC_API_KEY || '';
+const MODEL = process.env.PARALLELS_MODEL || 'claude-haiku-4-5';
+const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+
+function activeProvider(){
+  const forced = (process.env.AI_PROVIDER || '').toLowerCase();
+  if(forced === 'anthropic' && API_KEY) return 'anthropic';
+  if(forced === 'openai' && OPENAI_KEY) return 'openai';
+  if(API_KEY) return 'anthropic';
+  if(OPENAI_KEY) return 'openai';
+  return null;
+}
+function activeModel(){
+  const p = activeProvider();
+  return p === 'anthropic' ? MODEL : p === 'openai' ? OPENAI_MODEL : null;
+}
 
 const SYSTEM_PROMPT = `You are the narrative engine for PARALLELS, a game about the multiverse of choices.
 Given a real person's profile and a real turning point in their life, you write what happens in the parallel universe where they made a DIFFERENT choice.
@@ -115,6 +133,57 @@ function callAnthropic(body){
 const https = require('https');
 function https_request(opts, cb){ return https.request(opts, cb); }
 
+function finishFromJson(text, body, resolve){
+  const parsed = extractJson(text);
+  if(parsed && parsed.outcome && parsed.ripple && parsed.line){
+    const allowed = ['love','dark','funny','consequence','scary'];
+    if(!allowed.includes(parsed.tone)) parsed.tone = body.suggestedTone || 'consequence';
+    resolve(parsed);
+  } else resolve(null);
+}
+
+function callOpenAI(body){
+  return new Promise((resolve)=>{
+    const payload = JSON.stringify({
+      model: OPENAI_MODEL,
+      messages: [
+        { role:'system', content: SYSTEM_PROMPT },
+        { role:'user', content: buildUserPrompt(body) },
+      ],
+      max_completion_tokens: 800,
+      response_format: { type:'json_object' },
+    });
+    const req = https.request({
+      method:'POST', hostname:'api.openai.com', path:'/v1/chat/completions',
+      headers:{
+        'content-type':'application/json',
+        'authorization':'Bearer '+OPENAI_KEY,
+        'content-length': Buffer.byteLength(payload),
+      },
+    }, (res)=>{
+      let data='';
+      res.on('data', d=> data+=d);
+      res.on('end', ()=>{
+        try{
+          const j = JSON.parse(data);
+          const text = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+          finishFromJson(text, body, resolve);
+        }catch(e){ resolve(null); }
+      });
+    });
+    req.on('error', ()=> resolve(null));
+    req.write(payload); req.end();
+  });
+}
+
+// dispatch to whichever provider is active
+async function generate(body){
+  const p = activeProvider();
+  if(p === 'anthropic') return await callAnthropic(body);
+  if(p === 'openai')    return await callOpenAI(body);
+  return null;
+}
+
 const MIME = { '.html':'text/html; charset=utf-8', '.js':'text/javascript', '.css':'text/css', '.png':'image/png', '.svg':'image/svg+xml', '.ico':'image/x-icon' };
 
 function serveFile(res, file){
@@ -132,17 +201,18 @@ const server = http.createServer((req, res)=>{
   if(req.method==='GET' && req.url==='/favicon.ico'){ res.writeHead(204); return res.end(); }
   if(req.method==='GET' && req.url==='/healthz'){
     res.writeHead(200, {'content-type':'application/json'});
-    return res.end(JSON.stringify({ ok:true, ai: !!API_KEY, model: API_KEY?MODEL:null }));
+    const p = activeProvider();
+    return res.end(JSON.stringify({ ok:true, ai: !!p, provider: p, model: activeModel() }));
   }
   if(req.method==='POST' && req.url==='/api/generate'){
     let body='';
     req.on('data', d=>{ body+=d; if(body.length>20000) req.destroy(); });
     req.on('end', async ()=>{
       res.setHeader('content-type','application/json');
-      if(!API_KEY){ res.writeHead(200); return res.end(JSON.stringify({ fallback:true, reason:'no_api_key' })); }
+      if(!activeProvider()){ res.writeHead(200); return res.end(JSON.stringify({ fallback:true, reason:'no_api_key' })); }
       let parsedBody={};
       try{ parsedBody = JSON.parse(body||'{}'); }catch(e){ res.writeHead(400); return res.end(JSON.stringify({error:'bad_json'})); }
-      const out = await callAnthropic(parsedBody);
+      const out = await generate(parsedBody);
       if(out){ res.writeHead(200); res.end(JSON.stringify(out)); }
       else   { res.writeHead(200); res.end(JSON.stringify({ fallback:true, reason:'generation_failed' })); }
     });
@@ -161,7 +231,8 @@ const server = http.createServer((req, res)=>{
 
 if(require.main === module){
   server.listen(PORT, ()=>{
-    console.log(`PARALLELS running on :${PORT}  (AI engine: ${API_KEY?'ON — '+MODEL:'OFF — set ANTHROPIC_API_KEY to enable'})`);
+    const p = activeProvider();
+    console.log(`PARALLELS running on :${PORT}  (AI engine: ${p ? 'ON — '+p+' / '+activeModel() : 'OFF — set OPENAI_API_KEY or ANTHROPIC_API_KEY to enable'})`);
   });
 }
 module.exports = server;
