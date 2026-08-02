@@ -1,0 +1,1915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PARALLELS — Every Choice Is a Door</title>
+<style>
+  :root{
+    --bg:#05060f; --ink:#eef1ff; --muted:#9aa3c7;
+    --violet:#8b5cf6; --cyan:#22d3ee; --gold:#fbbf24; --rose:#fb7185; --green:#34d399;
+    --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    overflow:hidden;-webkit-font-smoothing:antialiased;
+  }
+  #stars{position:fixed;inset:0;z-index:0;display:block}
+  #glow{
+    position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:
+      radial-gradient(60% 50% at 50% 0%, rgba(139,92,246,.18), transparent 60%),
+      radial-gradient(50% 40% at 80% 100%, rgba(34,211,238,.12), transparent 60%),
+      radial-gradient(45% 40% at 10% 90%, rgba(251,113,133,.10), transparent 60%);
+  }
+  .wrap{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;
+    max-width:920px;margin:0 auto;padding:24px 22px 14px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{font-weight:800;letter-spacing:.32em;font-size:14px;
+    background:linear-gradient(90deg,var(--cyan),var(--violet),var(--rose));
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  .chapter{font-size:12px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;text-align:right}
+  .stage{flex:1;display:flex;flex-direction:column;justify-content:center;padding:8px 0;overflow-y:auto}
+  .fade{animation:fade .6s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .title-h1{font-size:clamp(46px,10vw,96px);font-weight:900;letter-spacing:.04em;line-height:.95;
+    background:linear-gradient(120deg,#fff,#c4b5fd 40%,var(--cyan));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 60px rgba(139,92,246,.25);}
+  .tagline{margin-top:18px;font-size:clamp(16px,2.4vw,21px);color:#d7dcff;max-width:560px}
+  .subline{margin-top:14px;font-size:15px;color:var(--muted);max-width:560px;line-height:1.6}
+
+  .scene-kicker{color:var(--cyan);font-size:12px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:14px}
+  .scene-title{font-size:clamp(23px,4.2vw,38px);font-weight:800;line-height:1.14;max-width:720px}
+  .scene-body{margin-top:16px;font-size:clamp(15px,2vw,18px);color:#cdd4f5;max-width:660px;line-height:1.65}
+
+  .doors{margin-top:26px;display:grid;gap:13px}
+  .door{text-align:left;cursor:pointer;
+    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+    border:1px solid var(--line);border-radius:16px;padding:17px 20px;color:var(--ink);font:inherit;
+    display:flex;align-items:center;gap:16px;
+    transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease;}
+  .door:hover{transform:translateY(-2px);border-color:rgba(139,92,246,.55);
+    background:linear-gradient(180deg,rgba(139,92,246,.14),rgba(34,211,238,.05));
+    box-shadow:0 12px 40px -18px rgba(139,92,246,.9);}
+  .door.fatal:hover{border-color:rgba(251,113,133,.55);
+    background:linear-gradient(180deg,rgba(251,113,133,.14),rgba(139,92,246,.04));
+    box-shadow:0 12px 40px -18px rgba(251,113,133,.9);}
+  .door .icon{width:44px;height:44px;flex:0 0 44px;border-radius:12px;display:grid;place-items:center;font-size:22px;
+    background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.25), rgba(139,92,246,.25));
+    border:1px solid rgba(255,255,255,.12);}
+  .door .txt b{display:block;font-size:16px;margin-bottom:3px}
+  .door .txt span{font-size:13px;color:var(--muted)}
+
+  .btn{cursor:pointer;font:inherit;font-weight:700;border:none;border-radius:999px;padding:15px 34px;font-size:16px;
+    color:#0a0a17;background:linear-gradient(90deg,var(--cyan),var(--violet));
+    box-shadow:0 14px 40px -14px rgba(139,92,246,.9);transition:transform .16s ease,filter .16s ease;}
+  .btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+  .btn-row{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+  .path-wrap{padding-top:8px}
+  .path-label{font-size:11px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
+  #pathSvg{width:100%;height:52px;display:block}
+
+  /* checkpoint */
+  .cp-tag{color:var(--gold);font-size:12px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:14px}
+  .cp-title{font-size:clamp(24px,4.4vw,40px);font-weight:800;line-height:1.12;max-width:720px}
+  .cp-body{margin-top:16px;font-size:clamp(15px,2vw,18px);color:#cdd4f5;max-width:660px;line-height:1.65}
+  .cp-blurb{margin-top:16px;font-size:15px;color:#c4b5fd;max-width:640px;line-height:1.7;font-style:italic}
+
+  /* story ending */
+  .end-tag{color:var(--rose);font-size:12px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:14px}
+  .end-title{font-size:clamp(26px,5vw,44px);font-weight:900;line-height:1.08;max-width:720px;
+    background:linear-gradient(120deg,#fff,#c4b5fd);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .end-body{margin-top:18px;font-size:clamp(15px,2.1vw,19px);color:#d7dcff;max-width:660px;line-height:1.7}
+  .soft-note{margin-top:20px;font-size:14px;color:var(--muted);max-width:600px;line-height:1.6;font-style:italic}
+
+  /* universe capstone */
+  .verse-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .verse-id{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;letter-spacing:.12em;color:var(--cyan);
+    border:1px solid rgba(34,211,238,.35);border-radius:999px;padding:6px 14px;background:rgba(34,211,238,.06);}
+  .rarity{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.18em;border:1px solid;border-radius:999px;padding:6px 12px;}
+  .verse-name{font-size:clamp(28px,5.2vw,48px);font-weight:900;line-height:1.05;
+    background:linear-gradient(120deg,#fff,var(--gold) 60%,var(--rose));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .verse-desc{margin-top:16px;font-size:clamp(15px,2vw,18px);color:#d7dcff;max-width:640px;line-height:1.7}
+  .bars{margin-top:20px;display:grid;gap:11px;max-width:520px}
+  .bar-row{display:flex;align-items:center;gap:12px}
+  .bar-row .lab{width:96px;font-size:13px;color:var(--muted);text-align:right}
+  .bar-track{flex:1;height:9px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden}
+  .bar-fill{display:block;height:100%;border-radius:999px;width:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .roads{margin-top:20px;font-size:14px;color:var(--muted);max-width:600px;line-height:1.7;
+    border-left:2px solid rgba(139,92,246,.5);padding-left:16px;font-style:italic}
+  .hope{margin-top:16px;font-size:15px;color:#c4b5fd;max-width:600px;line-height:1.7}
+  .challenge-cta{margin-top:22px;font-size:15px;color:#d7dcff;max-width:560px;line-height:1.6}
+  .challenge-cta b{color:var(--gold)}
+  .challenge-banner{margin-top:20px;font-size:16px;color:#eef1ff;max-width:560px;line-height:1.6;
+    background:linear-gradient(180deg,rgba(139,92,246,.16),rgba(34,211,238,.06));
+    border:1px solid rgba(139,92,246,.4);border-radius:14px;padding:16px 18px;}
+  .challenge-banner b{color:var(--cyan)}
+
+  .collapse-txt{font-size:clamp(22px,4vw,36px);font-weight:800;line-height:1.25;color:#eef1ff}
+  .collapse-sub{margin-top:14px;color:var(--cyan);font-size:13px;letter-spacing:.24em;text-transform:uppercase}
+  .foot{margin-top:auto;padding-top:12px;font-size:11px;color:#5b628a;text-align:center;letter-spacing:.04em}
+
+  /* ---- Change One Thing (reality-shift) mode ---- */
+  #toneglow{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .8s ease;mix-blend-mode:screen}
+  .mode-hint{margin-top:18px;font-size:14px;color:var(--muted);max-width:600px;line-height:1.6}
+  .mode-hint b{color:#d7dcff}
+  .base-life{margin-top:16px;font-size:clamp(16px,2.1vw,19px);color:#cdd4f5;max-width:680px;line-height:1.7}
+  .shift-prompt{color:var(--cyan);font-size:12px;letter-spacing:.24em;text-transform:uppercase;margin:26px 0 12px}
+  .tone-tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.16em;border:1px solid;border-radius:999px;padding:6px 12px;margin-bottom:16px}
+  .shift-new{font-size:clamp(16px,2.1vw,20px);color:#eef1ff;max-width:700px;line-height:1.7}
+  .shift-new.dim{color:#8b93c9;font-size:clamp(14px,1.8vw,16px)}
+  .ripple-label{margin-top:22px;color:var(--rose);font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px}
+  .ripple-txt{font-size:clamp(15px,2vw,18px);color:#d7dcff;max-width:700px;line-height:1.7}
+  .shift-line{margin-top:18px;font-size:15px;color:#c4b5fd;max-width:640px;line-height:1.7;font-style:italic;
+    border-left:2px solid rgba(139,92,246,.5);padding-left:16px}
+  @keyframes realityShift{
+    0%{opacity:0;transform:translateX(-8px) skewX(7deg);filter:blur(7px)}
+    30%{opacity:.5;transform:translateX(6px) skewX(-4deg);filter:blur(3px)}
+    60%{opacity:.85;transform:translateX(-2px) skewX(1deg);filter:blur(1px)}
+    100%{opacity:1;transform:none;filter:none}
+  }
+  .reality .tone-tag,.reality .shift-new,.reality .scene-kicker{animation:realityShift .75s cubic-bezier(.2,.7,.2,1) both}
+  .reality .shift-new{animation-delay:.1s}
+
+  /* ---- Your Own Life (personalization) ---- */
+  .form-grid{margin-top:22px;display:grid;gap:14px;max-width:560px}
+  .ff{display:flex;flex-direction:column;gap:6px}
+  .ff label{font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+  .ff input,.ff select{font:inherit;color:var(--ink);background:rgba(255,255,255,.05);
+    border:1px solid var(--line);border-radius:12px;padding:12px 14px;outline:none;width:100%}
+  .ff input:focus,.ff select:focus{border-color:rgba(139,92,246,.6);background:rgba(139,92,246,.08)}
+  .ff select option{background:#12121f;color:var(--ink)}
+  .form-err{color:var(--rose);font-size:14px;margin-top:12px;display:none}
+  .moment-year{color:var(--cyan);font-weight:800}
+  .privacy{margin-top:14px;font-size:12px;color:#5b628a;max-width:560px}
+  .life-out{font-size:clamp(16px,2.1vw,20px);color:#eef1ff;max-width:700px;line-height:1.7}
+  .life-out.dim{color:#8b93c9;font-size:clamp(14px,1.8vw,16px)}
+  .era-card{margin-top:18px;max-width:680px;border:1px solid var(--line);border-radius:14px;
+    background:linear-gradient(180deg,rgba(34,211,238,.07),rgba(255,255,255,.02));padding:14px 16px}
+  .era-card .eh{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);margin-bottom:6px}
+  .era-row{display:flex;gap:12px;font-size:14px;color:#cdd4f5;line-height:1.55;margin-top:8px}
+  .era-row .k{flex:0 0 84px;color:var(--muted);text-transform:uppercase;font-size:10.5px;letter-spacing:.08em;padding-top:3px}
+  .era-row .v{flex:1}
+  .ai-note{margin-top:16px;font-size:12px;color:#5b628a;max-width:600px;line-height:1.5}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div id="glow"></div>
+<div id="toneglow"></div>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">P A R A L L E L S</div>
+    <div class="chapter" id="chapter"></div>
+  </div>
+  <div class="stage" id="stage"></div>
+  <div class="path-wrap">
+    <div class="path-label" id="pathLabel"></div>
+    <svg id="pathSvg" viewBox="0 0 600 52" preserveAspectRatio="none"></svg>
+  </div>
+  <div class="foot">A single choice becomes a universe. This one is yours.</div>
+</div>
+
+<script>
+/* =========================================================================
+   PARALLELS v4 — a branching multiverse story engine.
+   The story is a GRAPH of nodes. Each choice points to the next node,
+   paths reconverge, some endings can continue. Traits accumulate across
+   every act and, at the end, collapse into the universe you built.
+   Node types:
+     decision  : has choices[] (each: icon,head,sub,eff,next[,fatal])
+     checkpoint: act break — title/body + auto "Continue" to .next
+     ending    : terminal narrative — title/body [+ continues: nodeId]
+   ========================================================================= */
+
+const DIMS = {
+  bold:{label:"Boldness",color:"#fb7185"},
+  bond:{label:"Connection",color:"#22d3ee"},
+  grit:{label:"Grit",color:"#34d399"},
+  vision:{label:"Vision",color:"#8b5cf6"},
+};
+
+const STORY = {
+  start:"i_open",
+  nodes:{
+
+  /* ================= ACT I — THE THRESHOLD ================= */
+  i_open:{ act:"Act I · The Threshold", kicker:"The Threshold",
+    title:"It's late, and the day beat you.",
+    body:"You're at the bottom of something — you can feel it. Then your phone lights up: a message, a chance, a hand reaching into the dark. You were one breath from shutting it all down for the night, maybe for good.",
+    choices:[
+      {icon:"💬",head:"Reach back into the dark.",sub:"Answer. Let someone in, just this once.",eff:{bond:2,bold:1},next:"i_reach"},
+      {icon:"🚪",head:"Shut the door. Stay safe.",sub:"You've been let down before. Not again.",eff:{grit:2,bond:-1},next:"i_guard"},
+      {icon:"⚡",head:"Ignore it — chase your own spark.",sub:"There's an idea in you that won't let go.",eff:{vision:2,bold:1},next:"i_spark"},
+    ]},
+  i_reach:{ act:"Act I · The Threshold", kicker:"The Meeting",
+    title:"You reached back. Now they want to meet.",
+    body:"It's real. There's a person on the other end of this, and a door you didn't expect. But doors swing both ways — they'll see you, all of you.",
+    choices:[
+      {icon:"🫀",head:"Show up as your real self.",sub:"Scars, mess, and all. Take the risk of being known.",eff:{bond:2,grit:1},next:"i_reach2"},
+      {icon:"🎭",head:"Show up as who you wish you were.",sub:"Impress first. Let them meet the real you later.",eff:{bold:2,vision:1},next:"i_reach2"},
+    ]},
+  i_reach2:{ act:"Act I · The Threshold", kicker:"The Hard Part",
+    title:"It's going well. Then they glimpse the hard part of your life.",
+    body:"Every life has a room it doesn't show on the first visit. They just found the door to yours. What you do now decides whether this becomes something — or stays a stranger you almost loved.",
+    choices:[
+      {icon:"🔑",head:"Let them into the messy room.",sub:"No more hiding. If it's real, it survives the truth.",eff:{bond:2},next:"i_check"},
+      {icon:"🛡️",head:"Pull away to protect them.",sub:"They deserve better than your storm.",eff:{grit:1,bond:-1},next:"i_check"},
+    ]},
+  i_guard:{ act:"Act I · The Threshold", kicker:"The Silence",
+    title:"You shut the door. The silence is safe — and heavy.",
+    body:"No one can hurt you in here. But no one can reach you either. The quiet you built for protection starts to feel like a cell.",
+    choices:[
+      {icon:"🔨",head:"Pour everything into a goal.",sub:"If people won't stay, build something that will.",eff:{grit:2,vision:1},next:"i_guard2"},
+      {icon:"📱",head:"The loneliness cracks you. Reach out after all.",sub:"Maybe safe isn't the same as alive.",eff:{bond:2},next:"i_reach2"},
+    ]},
+  i_guard2:{ act:"Act I · The Threshold", kicker:"The Work",
+    title:"You built something alone. It's yours. But who's it for?",
+    body:"You made real progress in the quiet. There's pride in that. There's also an empty chair at the table you set for one.",
+    choices:[
+      {icon:"⛰️",head:"Keep climbing solo.",sub:"The summit is close. Don't slow down now.",eff:{grit:2,bold:1},next:"i_check"},
+      {icon:"🚪",head:"Open the door to one person.",sub:"Let a single someone see what you've made.",eff:{bond:2},next:"i_check"},
+    ]},
+  i_spark:{ act:"Act I · The Threshold", kicker:"The Spark",
+    title:"You chased the idea. Everyone said it was crazy.",
+    body:"It kept you up at night — the thing only you can see. The people around you called it a distraction, a fantasy, a waste. But it's yours, and it's alive.",
+    choices:[
+      {icon:"🔥",head:"Go all in. Burn the boats.",sub:"No backup plan. Backup plans are for doubters.",eff:{bold:3},next:"i_spark2"},
+      {icon:"🌱",head:"Build it quietly on the side.",sub:"Grow it in the dark until it's ready for light.",eff:{grit:2,vision:1},next:"i_spark2"},
+    ]},
+  i_spark2:{ act:"Act I · The Threshold", kicker:"The Weight",
+    title:"The idea is alive, but fragile. It needs more than you have.",
+    body:"You've taken it as far as one pair of hands can. Now it's asking for something — more people, more time, more of you than you're sure you can give.",
+    choices:[
+      {icon:"🤝",head:"Bring people in to help it grow.",sub:"Share the dream. Let it outgrow you.",eff:{bond:2,vision:1},next:"i_check"},
+      {icon:"🔒",head:"Protect it. Do it all yourself.",sub:"No one will love it like you do.",eff:{grit:2},next:"i_check"},
+      {icon:"💤",head:"The pressure wins. Walk away from all of it.",sub:"Maybe it was never meant to be.",eff:{bond:-1,grit:-1},next:"end_walkaway",fatal:true},
+    ]},
+  i_check:{ checkpoint:true, tag:"End of Act I", next:"ii_open",
+    title:"The hardest part — starting — is behind you.",
+    body:"You found the first door in the dark and you walked through it. Whatever it cost, you're no longer standing still. The climb is next." },
+
+  /* ================= ACT II — THE CLIMB ================= */
+  ii_open:{ act:"Act II · The Climb", kicker:"The Climb",
+    title:"Now you have to build something that lasts.",
+    body:"The beginning is behind you; the grind is here. There's a way up, but every route asks for a different piece of you.",
+    choices:[
+      {icon:"🚀",head:"Take a big swing to grow fast.",sub:"Bet bigger than is comfortable.",eff:{bold:2,vision:1},next:"ii_risk"},
+      {icon:"🧱",head:"Grind — steady, reliable, brick by brick.",sub:"Slow is smooth, smooth is lasting.",eff:{grit:2},next:"ii_grind"},
+      {icon:"🪜",head:"Lift others as you climb.",sub:"Build the ladder wide enough for more than you.",eff:{bond:2},next:"ii_lift"},
+    ]},
+  ii_risk:{ act:"Act II · The Climb", kicker:"The Bet",
+    title:"You swung big. For a while, it soared.",
+    body:"Momentum, attention, the taste of something working. And then the ground shifts — the thing you bet on wobbles under the weight of its own speed.",
+    choices:[
+      {icon:"💪",head:"Double down. Push through the wobble.",sub:"Nerve got you here. Nerve gets you out.",eff:{bold:2,grit:1},next:"ii_setback"},
+      {icon:"🧭",head:"Pivot to something truer.",sub:"The wobble is information. Listen to it.",eff:{vision:2},next:"ii_setback"},
+    ]},
+  ii_grind:{ act:"Act II · The Climb", kicker:"The Grind",
+    title:"Brick by brick, it's becoming real.",
+    body:"No fireworks — just the quiet accumulation of days done right. But the load is getting heavy, and you're carrying it alone.",
+    choices:[
+      {icon:"🎯",head:"Keep your head down. Carry it alone.",sub:"You trust your own hands most.",eff:{grit:2},next:"ii_setback"},
+      {icon:"🤲",head:"Let someone in to share the load.",sub:"A weight split two ways travels farther.",eff:{bond:2},next:"ii_setback"},
+    ]},
+  ii_lift:{ act:"Act II · The Climb", kicker:"The Others",
+    title:"You started bringing people up with you.",
+    body:"It's slower this way. Messier. But the climb has voices now, and the summit stopped feeling so lonely. Then someone you're carrying starts to slip.",
+    choices:[
+      {icon:"❤️",head:"Sacrifice your own climb to catch them.",sub:"No one gets left on the mountain.",eff:{bond:3,grit:1},next:"ii_setback"},
+      {icon:"🌉",head:"Find a way to rise together.",sub:"Refuse the choice between them and the summit.",eff:{bond:1,vision:2},next:"ii_setback"},
+    ]},
+  ii_setback:{ act:"Act II · The Climb", kicker:"The Fall",
+    title:"Then life knocks you flat.",
+    body:"An injury. A betrayal. A door you were counting on, slammed and locked. The plan is gone, and for one long moment it feels like the whole future went with it. The next breath decides everything.",
+    choices:[
+      {icon:"🌅",head:"Rebuild — slower, but a new way.",sub:"The comeback writes a better story than the plan did.",eff:{grit:2,vision:1},next:"ii_check"},
+      {icon:"🔥",head:"Push harder down the same road.",sub:"Refuse to let it take what you wanted.",eff:{bold:2,grit:1},next:"ii_check"},
+      {icon:"🕳️",head:"Let it end you. Stop here.",sub:"You're so tired. Maybe this is where it stops.",eff:{bond:-1,grit:-1},next:"end_broken",fatal:true},
+    ]},
+  ii_check:{ checkpoint:true, tag:"End of Act II", next:"iii_open",
+    title:"You climbed, you fell, and you got back up.",
+    body:"The shape of your life is emerging now — not the one you planned, but a realer one, forged in the falling and the standing back up. What you do with it is the last question." },
+
+  /* ================= ACT III — THE LEGACY ================= */
+  iii_open:{ act:"Act III · The Legacy", kicker:"The Legacy",
+    title:"You made it somewhere the old you couldn't have imagined.",
+    body:"There's weight in what you've lived through, and now, finally, a choice that isn't about survival. It's about what all of it was FOR.",
+    choices:[
+      {icon:"📣",head:"Tell your story to help others.",sub:"Someone out there needs to hear it can be done.",eff:{vision:2,bond:1},next:"iii_tell"},
+      {icon:"🛠️",head:"Build quietly. Let the work speak.",sub:"The proof is what you made, not what you said.",eff:{grit:2},next:"iii_build"},
+      {icon:"👑",head:"Give it all to family first.",sub:"The legacy begins at your own kitchen table.",eff:{bond:2,grit:1},next:"iii_family"},
+    ]},
+  iii_tell:{ act:"Act III · The Legacy", kicker:"The Voice",
+    title:"You decided your story belongs to more than just you.",
+    body:"But how loud, and to whom? A story can be a stadium roar or a whisper that changes one life completely.",
+    choices:[
+      {icon:"🎤",head:"Take the biggest stage you can find.",sub:"Reach as many as humanly possible.",eff:{bold:2,vision:1},next:"end_stage"},
+      {icon:"🌟",head:"Mentor a few people, deeply.",sub:"Change whole lives, one at a time.",eff:{bond:2},next:"end_mentor"},
+    ]},
+  iii_build:{ act:"Act III · The Legacy", kicker:"The Work",
+    title:"You let the work be the whole speech.",
+    body:"No stage, no spotlight — just the thing you're making, growing quietly into something undeniable.",
+    choices:[
+      {icon:"🏛️",head:"Grow it into an empire.",sub:"Build something too big to ignore.",eff:{grit:2,bold:1},next:"end_empire"},
+      {icon:"💎",head:"Make one quiet masterpiece.",sub:"Perfect one true thing and let it outlive you.",eff:{grit:1,vision:2},next:"end_masterpiece"},
+    ]},
+  iii_family:{ act:"Act III · The Legacy", kicker:"The Table",
+    title:"You pointed everything home first.",
+    body:"The people at your table are the whole reason. But 'home' can be a fortress of four — or a porch light the whole street can see.",
+    choices:[
+      {icon:"🏠",head:"Pour everything into your own.",sub:"Give your children the ground you never had.",eff:{bond:3},next:"end_family"},
+      {icon:"🕯️",head:"Home first — then lift the whole block.",sub:"Turn your porch light into a lighthouse.",eff:{bond:2,vision:1},next:"end_together"},
+    ]},
+
+  /* ================= ENDINGS ================= */
+  end_walkaway:{ ending:true, tag:"An Ending · The Road Not Walked", continues:"i_open_again",
+    title:"You set it down, and the world went quiet.",
+    body:"You chose peace over the fight, and for a while it felt like relief. But some nights you still hear it — the hum of the life you almost built, glowing faintly in a universe next door. It isn't too late. It's never as late as it feels.",
+    softNote:"This is one place your story could rest. But a door left unopened doesn't lock — it waits." },
+  end_broken:{ ending:true, tag:"An Ending · The Fall", continues:"ii_setback",
+    title:"You stayed down. The dark felt like the end.",
+    body:"And maybe, in some universe, it was. But you're still here, reading this, breathing. Somewhere close, another version of you is getting up right now — dusting off, choosing to try one more time. That version isn't stronger than you. It's just one decision ahead.",
+    softNote:"Every comeback story starts exactly here, on the floor. Yours can too — the door back is still open." },
+  end_stage:{ ending:true, tag:"An Ending · The Stadium", continues:"iv_open",
+    title:"You told it from the biggest stage you could find.",
+    body:"And in a sea of strangers, one person heard the exact thing they needed to keep going. Then another. Then thousands. You turned your worst days into someone else's reason to hold on. That's not fame. That's a torch, passed.",
+    softNote:"You could rest here, a life well-spent. Or you could see what your story did once it left the room." },
+  end_mentor:{ ending:true, tag:"An Ending · The Few",
+    title:"You poured yourself into a handful of people.",
+    body:"You'll never trend. No stadium will chant your name. But five people became who they were meant to be because you refused to give up on them — and each of them is now refusing to give up on five more. Quiet math. World-changing sum." },
+  end_empire:{ ending:true, tag:"An Ending · The Empire",
+    title:"You built something too big to ignore.",
+    body:"What started as one pair of desperate hands became a machine that feeds families, opens doors, and outlives its founder. They'll study what you made. Few will know what it cost you to start it in the dark. You will. That's enough." },
+  end_masterpiece:{ ending:true, tag:"An Ending · The One True Thing",
+    title:"You made one perfect thing and let it go.",
+    body:"You resisted the urge to make it bigger, and made it truer instead. Long after you're gone, someone will find it, feel understood, and never know your name. You'll have reached across time to hold a stranger steady. That was always the point." },
+  end_family:{ ending:true, tag:"An Ending · The Table",
+    title:"You gave your children the ground you never stood on.",
+    body:"They'll grow up not knowing the weight you carried so they wouldn't have to. They'll take for granted the safety you bled for. That's not a tragedy — that's the whole victory. You broke a cycle. The next generation gets to start from higher up." },
+  end_together:{ ending:true, tag:"An Ending · The Lighthouse", continues:"iv_open",
+    title:"You took care of your own — then lit the way for everyone.",
+    body:"Your porch light became a lighthouse. The kids on your block, the families down the street, strangers who only ever heard of you — they steered by the glow of a life that refused to keep its warmth to itself. Home first. Then the world.",
+    softNote:"You could stop here, whole and proud. Or you could see how far the light travels." },
+
+  /* ================= ACT IV — THE RIPPLE (continuation) ================= */
+  iv_open:{ act:"Act IV · The Ripple", kicker:"Years Later",
+    title:"The thing you started has a life of its own now.",
+    body:"You're older. You could coast on what you built. But a story is never really finished — it only hands the pen to someone else.",
+    choices:[
+      {icon:"🌊",head:"Watch someone you helped help others.",sub:"See the ripple reach a shore you'll never visit.",eff:{bond:2,vision:1},next:"end_ripple"},
+      {icon:"🚪",head:"Quietly begin again. A brand-new door.",sub:"Prove to yourself the fire never went out.",eff:{vision:2,bold:1},next:"end_newdoor"},
+    ]},
+  end_ripple:{ ending:true, tag:"An Ending · The Ripple",
+    title:"You watched your ripple become someone else's wave.",
+    body:"A person you lifted, years ago, is now standing where you once stood — reaching back into someone's dark exactly the way someone once reached into yours. You realize the thing you built was never the point. The point was teaching the world how to reach. And it learned." },
+  end_newdoor:{ ending:true, tag:"An Ending · The Next Door",
+    title:"You walked through a brand-new door, just to prove you still could.",
+    body:"You had every excuse to stop. Instead you started again, from scratch, with nothing to prove to anyone but yourself. Turns out the fire was never about the destination. It was about being the kind of person who always, always keeps walking forward. You are that person. You always were." },
+
+  /* re-entry node for the walkaway comeback */
+  i_open_again:{ act:"Act I · Second Chance", kicker:"Another Door",
+    title:"Months later, a door you thought closed cracks open again.",
+    body:"The world offers second chances more often than we take them. Here's yours, wearing a slightly different face. This time you know what it costs to say no.",
+    choices:[
+      {icon:"🔥",head:"This time, walk through it.",sub:"You've felt the empty version. Choose the full one.",eff:{bold:2,vision:1},next:"ii_open"},
+      {icon:"🤝",head:"Walk through it — and bring someone.",sub:"Don't do the hard part alone this time.",eff:{bond:2,bold:1},next:"ii_open"},
+    ]},
+  }
+};
+
+/* ---------- Universe naming (dominant + secondary) ---------- */
+const PAIR_NAMES = {
+  "bold-bond":"The Universe of Fearless Love","bold-grit":"The Universe of the Relentless","bold-vision":"The Universe of the Pioneer",
+  "bond-bold":"The Universe of the Ride-or-Die","bond-grit":"The Universe of the Unbreakable","bond-vision":"The Universe of the Circle of Dreamers",
+  "grit-bold":"The Universe of the Comeback","grit-bond":"The Universe of the Rock","grit-vision":"The Universe of the Quiet Builder",
+  "vision-bold":"The Universe of the Wayfinder","vision-bond":"The Universe of the Lightbringer","vision-grit":"The Universe of the Architect",
+};
+const BALANCED_NAME = "The Universe of Perfect Balance";
+const FRAG = {
+  bold:"moved before the fear could finish talking",
+  bond:"measured your life by the people you refused to lose",
+  grit:"treated every fall as a starting line",
+  vision:"saw the door before anyone believed there was a wall",
+};
+const FRAG2 = {
+  bold:"never waited for permission to begin",
+  bond:"made sure no one you loved had to climb alone",
+  grit:"outlasted every good reason to quit",
+  vision:"built worlds in your mind long before they existed",
+};
+const TRAIT = {
+  bold:"Somewhere another you stayed safe and always wondered. This one leapt.",
+  bond:"In a thousand other universes you climbed alone. In this one, you brought people with you.",
+  grit:"Somewhere another you stayed down. This one stood up so many times it became who you are.",
+  vision:"Other versions of you followed a map. This one drew a new one.",
+};
+const CLOSERS = [
+  "Every road you didn't take is real too — faded, humming in the dark. But this is the one with your name on it, and it isn't finished yet.",
+  "There are infinite versions of your life. You're living in the one that got up, reached back, and kept going. That's not luck. That's you.",
+  "Some universe out there chose differently and lost everything that mattered. Not this one. You built this one, one door at a time.",
+];
+const HOPE = [
+  "And somewhere in your real life, a door like these is already waiting. You've walked through harder ones to get this far.",
+  "The doors in this game aren't make-believe. You meet them for real — and you're more ready for the next one than you know.",
+  "Whatever you survived to reach this screen, that was the hard part. The next door is lighter than it looks. You've got this.",
+];
+const CP_BLURB = {
+  bold:"So far, you're the one who moves first and lets the doubt catch up later.",
+  bond:"So far, your story is being written in the people you've chosen to keep close.",
+  grit:"So far, you've refused to break, no matter what the day has thrown at you.",
+  vision:"So far, you've been chasing a picture only you can fully see.",
+};
+
+/* ---------- State + rendering ---------- */
+let nodeId = STORY.start;
+let totals = {bold:0,bond:0,grit:0,vision:0};
+let journey = [];          // {chosen, count} per decision
+let currentResult = null;
+
+const stage = document.getElementById('stage');
+const chapterEl = document.getElementById('chapter');
+const pathSvg = document.getElementById('pathSvg');
+const pathLabel = document.getElementById('pathLabel');
+
+function resetRun(){
+  nodeId = STORY.start;
+  totals = {bold:0,bond:0,grit:0,vision:0};
+  journey = [];
+  currentResult = null;
+}
+function domOf(t){ return Object.keys(t).sort((a,b)=>t[b]-t[a]); }
+
+/* ================= Title ================= */
+function renderTitle(){
+  chapterEl.textContent=""; pathLabel.textContent=""; pathSvg.innerHTML="";
+  stage.className="stage fade";
+  const banner = incomingChallenge ? `
+    <div class="challenge-banner">🌌 You've been challenged. Someone out there built <b>${incomingChallenge.name}</b>.<br>Now the door is yours — which universe will <b>you</b> build?</div>` : '';
+  stage.innerHTML = `
+    <h1 class="title-h1">PARALLELS</h1>
+    <p class="tagline">Every choice is a door. Every door is a universe.</p>
+    ${banner}
+    <div class="btn-row">
+      <button class="btn" id="startBtn">${incomingChallenge?'Build my universe':'Live the Story'}</button>
+      <button class="btn ghost" id="shiftBtn">Change One Thing ✦</button>
+      <button class="btn ghost" id="lifeBtn">Your Own Life ✦ ᴮᴱᵀᴬ</button>
+    </div>
+    <p class="mode-hint"><b>Live the Story</b> — a branching life in four acts. <b>Change One Thing</b> — step sideways into another life and watch reality rewrite itself; pick a pack (horror, comedy, love, founder, family). <b>Your Own Life</b> — enter your real details, go back to a real turning point in your past, and see the universe a different choice would've opened. Not every timeline is a happy one.</p>
+  `;
+  toneGlow(null);
+  document.getElementById('startBtn').onclick = ()=>{ toneGlow(null); resetRun(); go(STORY.start); };
+  document.getElementById('shiftBtn').onclick = startShiftMode;
+  document.getElementById('lifeBtn').onclick = renderProfileIntake;
+}
+
+/* ================= Router ================= */
+function go(id){
+  nodeId = id;
+  const node = STORY.nodes[id];
+  if(!node){ console.error("Missing node:", id); return; }
+  if(node.ending) return renderStoryEnding(node);
+  if(node.checkpoint) return renderCheckpoint(node);
+  return renderDecision(node);
+}
+
+function renderDecision(node){
+  chapterEl.textContent = node.act || "";
+  stage.className="stage fade";
+  const doors = node.choices.map((c,i)=>`
+    <button class="door${c.fatal?' fatal':''}" data-i="${i}">
+      <span class="icon">${c.icon}</span>
+      <span class="txt"><b>${c.head}</b><span>${c.sub}</span></span>
+    </button>`).join("");
+  stage.innerHTML = `
+    <div class="scene-kicker">${node.kicker||""}</div>
+    <div class="scene-title">${node.title}</div>
+    <div class="scene-body">${node.body}</div>
+    <div class="doors">${doors}</div>`;
+  stage.querySelectorAll('.door').forEach(b=> b.onclick = ()=>choose(node, parseInt(b.dataset.i,10)));
+  drawPath();
+}
+
+function choose(node, i){
+  const c = node.choices[i];
+  for(const k in c.eff) totals[k]+=c.eff[k];
+  journey.push({chosen:i, count:node.choices.length});
+  drawPath();
+  go(c.next);
+}
+
+/* ================= Checkpoint (act break) ================= */
+function renderCheckpoint(node){
+  chapterEl.textContent = "";
+  stage.className="stage fade";
+  const dom = domOf(totals)[0];
+  stage.innerHTML = `
+    <div class="cp-tag">${node.tag}</div>
+    <div class="cp-title">${node.title}</div>
+    <div class="cp-body">${node.body}</div>
+    <div class="cp-blurb">${CP_BLURB[dom]}</div>
+    <div class="btn-row"><button class="btn" id="contBtn">Continue the story →</button></div>`;
+  document.getElementById('contBtn').onclick = ()=>go(node.next);
+  drawPath();
+}
+
+/* ================= Story ending (narrative) ================= */
+function renderStoryEnding(node){
+  chapterEl.textContent = "";
+  stage.className="stage fade";
+  const soft = node.continues;
+  const buttons = soft ? `
+      <button class="btn" id="contBtn">Continue the story →</button>
+      <button class="btn ghost" id="revealBtn">End here — reveal my universe</button>`
+    : `<button class="btn" id="revealBtn">Reveal my universe →</button>`;
+  stage.innerHTML = `
+    <div class="end-tag">${node.tag}</div>
+    <div class="end-title">${node.title}</div>
+    <div class="end-body">${node.body}</div>
+    ${node.softNote?`<div class="soft-note">${node.softNote}</div>`:''}
+    <div class="btn-row">${buttons}</div>`;
+  if(soft) document.getElementById('contBtn').onclick = ()=>go(node.continues);
+  document.getElementById('revealBtn').onclick = renderCollapse;
+  drawPath();
+}
+
+/* ================= Reveal beat ================= */
+function renderCollapse(){
+  chapterEl.textContent="";
+  stage.className="stage fade";
+  stage.innerHTML = `
+    <div style="text-align:center;width:100%">
+      <div class="collapse-txt">Every choice you made<br>is collapsing into one universe…</div>
+      <div class="collapse-sub">Reading your path through the multiverse</div>
+    </div>`;
+  drawPath();
+  setTimeout(renderUniverse, 1600);
+}
+
+/* ================= Universe capstone ================= */
+function rarityOf(t){
+  const vals=Object.values(t);
+  const spread=Math.max(...vals)-Math.min(...vals);
+  const allPos=vals.every(v=>v>0);
+  if(allPos && spread<=2) return {tier:"LEGENDARY",color:"#fbbf24"};
+  if(spread<=4)          return {tier:"RARE",     color:"#c4b5fd"};
+  if(spread<=8)          return {tier:"UNCOMMON", color:"#67e8f9"};
+  return {tier:"COMMON", color:"#9aa3c7"};
+}
+function makeResult(t, jrny){
+  const order=domOf(t), domKey=order[0], secondKey=order[1];
+  const sig=jrny.reduce((a,j,k)=>a + j.chosen*(k+3), 0);
+  const rarity=rarityOf(t);
+  let name, desc;
+  if(rarity.tier==="LEGENDARY"){
+    name=BALANCED_NAME;
+    desc="In this universe, you are the rare one who refused to become just one thing — bold and loving, unbreakable and dreaming, all at once. Almost no one holds all four. You do.";
+  } else {
+    name=PAIR_NAMES[`${domKey}-${secondKey}`]||"The Universe You Built";
+    desc=`In this universe, you are the one who ${FRAG[domKey]} — the one who also ${FRAG2[secondKey]}.`;
+  }
+  const code=jrny.map(j=>j.chosen).join('');
+  const num=100+(sig*37)%899;
+  return {t:{...t}, domKey, secondKey, name, desc, trait:TRAIT[domKey],
+    closer:CLOSERS[sig%CLOSERS.length], hope:HOPE[sig%HOPE.length],
+    rarity, code, num, verseId:`UNIVERSE #${num}-${code}`};
+}
+
+function renderUniverse(){
+  chapterEl.textContent="Your Universe";
+  const R = makeResult(totals, journey);
+  currentResult = R;
+  const max=Math.max(6,...Object.values(R.t).map(x=>Math.abs(x)));
+  const bars=Object.keys(DIMS).map(k=>{
+    const pct=Math.max(4,Math.round((R.t[k]/max)*100));
+    return `<div class="bar-row"><span class="lab">${DIMS[k].label}</span>
+      <span class="bar-track"><span class="bar-fill" data-pct="${Math.min(100,pct)}" style="background:${DIMS[k].color}"></span></span></div>`;
+  }).join("");
+  stage.className="stage fade";
+  stage.innerHTML = `
+    <div class="verse-top">
+      <span class="verse-id">${R.verseId}</span>
+      <span class="rarity" style="color:${R.rarity.color};border-color:${R.rarity.color}55;background:${R.rarity.color}14">${R.rarity.tier}</span>
+    </div>
+    <div class="verse-name">${R.name}</div>
+    <p class="verse-desc">${R.desc}</p>
+    <div class="bars">${bars}</div>
+    <p class="roads">${R.trait} ${R.closer}</p>
+    <p class="hope">${R.hope}</p>
+    <div class="challenge-cta">Now pass the door forward: which universe would <b>someone you love</b> build? Send it and find out.</div>
+    <div class="btn-row">
+      <button class="btn" id="shareBtn">Share my universe ✦</button>
+      <button class="btn ghost" id="dlBtn">Download image</button>
+      <button class="btn ghost" id="linkBtn">Copy challenge link</button>
+    </div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn ghost" id="againBtn">Live another life</button>
+    </div>`;
+  requestAnimationFrame(()=>stage.querySelectorAll('.bar-fill').forEach(f=>f.style.width=f.dataset.pct+"%"));
+  document.getElementById('againBtn').onclick = ()=>renderTitle();
+  document.getElementById('shareBtn').onclick = shareResult;
+  document.getElementById('dlBtn').onclick = downloadCard;
+  document.getElementById('linkBtn').onclick = copyLink;
+  drawPath();
+}
+
+/* ================= Constellation path ================= */
+function drawPath(){
+  pathLabel.textContent = journey.length ? "Your path through the multiverse" : "";
+  const W=600,H=52, n=Math.max(journey.length,1), gap=W/(n+1);
+  let lines="",nodes="",prev=null;
+  journey.forEach((step,i)=>{
+    const x=gap*(i+1), count=step.count;
+    for(let o=0;o<count;o++){
+      const y=14 + o*((H-22)/(count-1||1));
+      if(o===step.chosen){
+        if(prev) lines+=`<line x1="${prev.x}" y1="${prev.y}" x2="${x}" y2="${y}" stroke="url(#g)" stroke-width="2" opacity=".9"/>`;
+        nodes+=`<circle cx="${x}" cy="${y}" r="5.5" fill="#fff"/><circle cx="${x}" cy="${y}" r="9" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity=".8"/>`;
+        prev={x,y};
+      } else {
+        nodes+=`<circle cx="${x}" cy="${y}" r="3" fill="#9aa3c7" opacity=".2"/>`;
+      }
+    }
+  });
+  pathSvg.innerHTML = `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#fb7185"/></linearGradient></defs>${lines}${nodes}`;
+}
+
+/* ================= Sharing / viral loop ================= */
+function shareLink(){ return location.origin + location.pathname + '?v=' + currentResult.code; }
+function shareText(){ return `I built "${currentResult.name}" in PARALLELS 🌌 Every choice is a door. Which universe would YOU build?`; }
+function buildCardBlob(){
+  const c=document.createElement('canvas'); c.width=1080; c.height=1920;
+  drawShareCard(c.getContext('2d'), currentResult);
+  return new Promise(res=>c.toBlob(res,'image/png'));
+}
+async function shareResult(){
+  const url=shareLink(), text=shareText();
+  try{
+    const blob=await buildCardBlob();
+    const file=new File([blob],'my-universe.png',{type:'image/png'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file],text,url}); return; }
+    if(navigator.share){ await navigator.share({text,url}); return; }
+  }catch(e){}
+  downloadCard(); copyLink();
+}
+async function downloadCard(){
+  const btn=document.getElementById('dlBtn');
+  try{
+    const blob=await buildCardBlob();
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='my-universe.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+    if(btn){ btn.textContent="Saved ✓"; setTimeout(()=>btn.textContent="Download image",1800); }
+  }catch(e){ if(btn) btn.textContent="Couldn't save"; }
+}
+function copyLink(){
+  const btn=document.getElementById('linkBtn');
+  navigator.clipboard?.writeText(shareLink()).then(()=>{
+    if(btn){ btn.textContent="Link copied ✓"; setTimeout(()=>btn.textContent="Copy challenge link",1800); }
+  }).catch(()=>{ if(btn) btn.textContent="Link ready"; });
+}
+function roundRect(ctx,x,y,w,h,r){ if(w<r*2)r=w/2; ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function wrapTextCentered(ctx,text,cx,y,maxW,lh){
+  const words=text.split(' '); let line=''; const lines=[];
+  for(const w of words){ const t=line?line+' '+w:w; if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w;}else line=t; }
+  if(line)lines.push(line); lines.forEach((ln,i)=>ctx.fillText(ln,cx,y+i*lh)); return lines.length;
+}
+function drawShareCard(x,R){
+  const W=1080,H=1920;
+  x.fillStyle="#05060f"; x.fillRect(0,0,W,H);
+  let g=x.createRadialGradient(W*.5,H*.10,40,W*.5,H*.10,W*.85);
+  g.addColorStop(0,"rgba(139,92,246,.38)"); g.addColorStop(1,"rgba(139,92,246,0)"); x.fillStyle=g; x.fillRect(0,0,W,H);
+  g=x.createRadialGradient(W*.85,H*.92,40,W*.85,H*.92,W*.75);
+  g.addColorStop(0,"rgba(34,211,238,.24)"); g.addColorStop(1,"rgba(34,211,238,0)"); x.fillStyle=g; x.fillRect(0,0,W,H);
+  for(let i=0;i<170;i++){ x.globalAlpha=Math.random()*.7+.2; x.beginPath();
+    x.arc(Math.random()*W,Math.random()*H,Math.random()*2.2+.5,0,7); x.fillStyle=Math.random()>.5?"#cbd5ff":"#8b93c9"; x.fill(); }
+  x.globalAlpha=1; x.textAlign="center";
+  x.fillStyle="#9aa3c7"; x.font="700 36px -apple-system,'Segoe UI',Roboto,sans-serif"; x.fillText("P A R A L L E L S",W/2,160);
+  const rc=R.rarity.color; x.font="800 30px -apple-system,'Segoe UI',Roboto,sans-serif";
+  const rw=x.measureText(R.rarity.tier).width+60;
+  x.fillStyle=rc+"22"; roundRect(x,W/2-rw/2,400,rw,56,28); x.fill();
+  x.strokeStyle=rc+"88"; x.lineWidth=2; roundRect(x,W/2-rw/2,400,rw,56,28); x.stroke();
+  x.fillStyle=rc; x.fillText(R.rarity.tier,W/2,438);
+  x.fillStyle="#9aa3c7"; x.font="400 42px -apple-system,'Segoe UI',Roboto,sans-serif"; x.fillText("The universe I built",W/2,540);
+  const ng=x.createLinearGradient(90,560,990,760);
+  ng.addColorStop(0,"#ffffff"); ng.addColorStop(.55,"#fbbf24"); ng.addColorStop(1,"#fb7185");
+  x.fillStyle=ng; x.font="900 78px -apple-system,'Segoe UI',Roboto,sans-serif";
+  const nLines=wrapTextCentered(x,R.name,W/2,660,920,90);
+  let idY=660+nLines*90+40;
+  x.fillStyle="#22d3ee"; x.font="500 34px ui-monospace,Menlo,monospace"; x.fillText(R.verseId,W/2,idY);
+  const dims=Object.keys(DIMS), max=Math.max(6,...Object.values(R.t).map(v=>Math.abs(v))); let by=idY+120;
+  dims.forEach(k=>{
+    const pct=Math.max(.04,Math.min(1,R.t[k]/max));
+    x.textAlign="right"; x.fillStyle="#9aa3c7"; x.font="500 32px -apple-system,sans-serif"; x.fillText(DIMS[k].label,380,by+9);
+    x.fillStyle="rgba(255,255,255,.09)"; roundRect(x,410,by-20,500,28,14); x.fill();
+    x.fillStyle=DIMS[k].color; roundRect(x,410,by-20,Math.max(28,500*pct),28,14); x.fill(); by+=76;
+  });
+  x.textAlign="center";
+  const cg=x.createLinearGradient(0,0,W,0); cg.addColorStop(0,"#22d3ee"); cg.addColorStop(1,"#8b5cf6");
+  x.fillStyle=cg; x.font="800 60px -apple-system,'Segoe UI',Roboto,sans-serif";
+  x.fillText("Which universe",W/2,1640); x.fillText("would YOU build?",W/2,1712);
+  x.fillStyle="#9aa3c7"; x.font="400 36px -apple-system,sans-serif"; x.fillText("Every choice is a door.",W/2,1800);
+}
+
+/* ============================================================
+   YOUR OWN LIFE — personalization (Stage 1 of the big vision)
+   Enter real details, pick a real turning point, make a different
+   choice, see the universe it opens. In-memory only; nothing saved.
+   ============================================================ */
+const CURRENT_YEAR = new Date().getFullYear();
+let profile = null;
+
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+// Deep historical layer — vibe + real world/money/culture texture per era.
+const HISTORY = [
+  { from:2024, to:9999, vibe:"AI everywhere and prices that won't quit",
+    world:"AI tools were suddenly in everything, the pandemic had faded into a strange memory, and the world felt like it was rewriting its own rules in real time.",
+    money:"Prices and interest rates stayed stubbornly high, good jobs were fiercely competitive, and everyone had opinions about whether a house would ever be affordable again.",
+    culture:"Work was hybrid, attention was scattered across a dozen apps, and 'wait, is this real or AI?' had become a normal question to ask about almost anything." },
+  { from:2021, to:2023, vibe:"reopening, inflation, and the Great Resignation",
+    world:"The world cautiously reopened after lockdown, everything cost more than it used to, and millions of people quit jobs to chase something that actually mattered.",
+    money:"Inflation spiked hard, remote work went mainstream, wages finally nudged up, and crypto and side hustles were the dinner-table conversation.",
+    culture:"Everyone lived on video calls, streamed everything, and quietly re-examined what they wanted their whole life to be for." },
+  { from:2020, to:2020, vibe:"the year the whole world stopped",
+    world:"A pandemic shut the planet indoors all at once — empty streets, masks, and a collective stillness and fear nobody had lived through before.",
+    money:"Whole industries froze overnight, unemployment spiked, and 'essential worker' entered everyone's vocabulary as offices emptied for good.",
+    culture:"Life moved onto screens — work, school, birthdays, funerals — and banana bread, home workouts, and 3am doomscrolling filled the silence." },
+  { from:2017, to:2019, vibe:"peak everything, right before the pause",
+    world:"The economy was humming, phones ran everyone's lives, and the culture felt loud and fast and endlessly online — the calm-chaos right before 2020 changed it all.",
+    money:"Unemployment hit generational lows, the gig economy boomed, rent climbed relentlessly, and 'do what you love' was both the mantra and the trap.",
+    culture:"Streaming killed cable, everyone was an aspiring brand, and your worth felt measured in follows, likes, and side projects." },
+  { from:2015, to:2016, vibe:"smartphones everywhere, the ground shifting",
+    world:"Smartphones were now simply the air everyone breathed, social media reshaped how the world argued, and the culture felt like it was splitting into camps.",
+    money:"The recovery was real but uneven, tech money surged, and gig apps promised freedom while quietly redefining what a 'job' even was.",
+    culture:"On-demand everything, binge-watching, and a feed for every mood — connection had never been so constant, or so exhausting." },
+  { from:2012, to:2014, vibe:"the climb out, a phone in every hand",
+    world:"The worst of the crash was behind you, social media went fully mainstream, and a smartphone in every pocket was quietly rewiring daily life.",
+    money:"Jobs were slowly returning but wages lagged, student debt ballooned, and 'start a company from your laptop' became a real and seductive idea.",
+    culture:"Instagram, streaming, and startups — the culture ran on optimism, hustle, and the feeling the internet could remake anything." },
+  { from:2009, to:2011, vibe:"the long, hard recovery",
+    world:"The financial crash had gutted things, unemployment stayed brutal, and a whole generation graduated into a job market with no room for them.",
+    money:"Layoffs, foreclosures, and 'overqualified and underemployed' — money was tight and the future felt genuinely uncertain for millions.",
+    culture:"Frugality was cool again, social media became the megaphone for a frustrated public, and everyone learned to do more with less." },
+  { from:2008, to:2008, vibe:"the year the bottom fell out",
+    world:"The financial system nearly collapsed — banks failed, markets crashed, and the fear was thick enough to taste as jobs vanished overnight.",
+    money:"Retirement accounts halved, homes went underwater, and 'once-in-a-lifetime crisis' turned out to define a whole era.",
+    culture:"Amid the wreckage a strange hope flickered too — the sense that the old rules had broken and something new would have to be built." },
+  { from:2004, to:2007, vibe:"cheap credit and the early social web",
+    world:"Money felt easy, houses only ever went up (everyone said), and the social web was just being born — MySpace, then this new thing called Facebook.",
+    money:"Credit was everywhere and cheap, the housing boom made everyone feel rich, and almost nobody saw the cliff at the edge of the party.",
+    culture:"Flip phones, iPods, and the first taste of living your life online — the last few years before the smartphone changed everything." },
+  { from:2001, to:2003, vibe:"the bust and the long shadow",
+    world:"The dot-com bubble burst, then a hard new decade began under a shadow of fear and recession that reset everyone's sense of safety.",
+    money:"Tech jobs evaporated, the market slid, and the exuberance of the '90s gave way to caution and slow rebuilding.",
+    culture:"The internet grew up fast, reality TV took over, and a more anxious, security-minded mood settled over everything." },
+  { from:1997, to:2000, vibe:"the dot-com gold rush",
+    world:"The internet arrived for real, the economy roared, and it felt like anyone with a website and a dream could get rich by Friday.",
+    money:"Jobs were plentiful, stocks looked like magic, and 'irrational exuberance' was the mood right up until the bubble stretched too thin.",
+    culture:"Dial-up screeches, chat rooms, CD binders, and Y2K panic — the analog world was going digital in real time." },
+  { from:1994, to:1996, vibe:"the web arrives, the boom begins",
+    world:"The world was climbing out of a recession, the web was a brand-new frontier, and optimism was building toward the coming boom.",
+    money:"Jobs were returning, the middle class felt sturdy, and a computer in the home was going from luxury to normal.",
+    culture:"Grunge and hip-hop ruled, cable had a channel for everything, and 'you've got mail' was a small daily miracle." },
+  { from:1990, to:1993, vibe:"the early '90s, before it all went online",
+    world:"The Cold War ended, a recession bit hard, and the world felt between chapters — the old order gone, the digital one not yet here.",
+    money:"Layoffs hit white-collar workers for the first time in a while, and 'a job for life' started to feel like an old promise.",
+    culture:"Mixtapes, MTV, and landlines — connection meant showing up in person, and everyone did." },
+  { from:1985, to:1989, vibe:"the neon boom",
+    world:"Big ambition, bigger hair, and a booming late-'80s economy — with the Cold War still humming quietly under everything.",
+    money:"Wall Street was king, greed was openly good, and the money felt fast and flashy for anyone who could reach it.",
+    culture:"MTV, arcades, mall culture, and the first home computers — loud, bright, and sure of itself." },
+  { from:1980, to:1984, vibe:"recession, then Reagan-era reinvention",
+    world:"The decade opened in a harsh recession with sky-high interest rates, then swung into a brash new era of reinvention and ambition.",
+    money:"Interest rates were punishing, factories were changing, and the ground under blue-collar work began shifting for good.",
+    culture:"Personal computers arrived, synth-pop took over the radio, and the culture started dreaming bigger and shinier." },
+  { from:1975, to:1979, vibe:"stagflation, oil lines, and disco",
+    world:"Oil shocks, long gas lines, and a national mood of malaise defined the late '70s — even as the music got euphoric to compensate.",
+    money:"Stagflation was the strange curse of the era: high prices and a stalled economy at the same time, squeezing everyone.",
+    culture:"Disco, denim, and the last fully analog decade in swing — everyone gathered around the same few TV channels." },
+  { from:1970, to:1974, vibe:"upheaval and a decade refusing to sit still",
+    world:"War, scandal, and an oil crisis rocked the era — a time of protest, disillusionment, and enormous change.",
+    money:"An oil shock and rising prices ended the long postwar boom, and the sense of endless prosperity cracked.",
+    culture:"Rock, revolution, and a generation openly questioning everything their parents had taken for granted." },
+];
+const HISTORY_FALLBACK = { vibe:"a different world, one you remember better than any headline",
+  world:"The world of that year had its own texture — one you lived and remember far better than any history book could capture.",
+  money:"Work and money meant something specific then, shaped by the particular pressures and promises of the time.",
+  culture:"The music, the technology, the daily rhythms — all of it made that year unmistakably its own." };
+function eraDetail(y){ return HISTORY.find(h=> y>=h.from && y<=h.to) || HISTORY_FALLBACK; }
+function eraContext(y){ return eraDetail(y).vibe; }
+
+// Each stage: age anchor + a make(profile, year, era) that returns a personalized scene.
+const STAGES = [
+  { age:16, label:"The First Rebellion", emoji:"🔥", make:(p,year,era)=>{
+    const name=esc(p.name), love=esc(p.love)||"the thing you loved most";
+    return { kicker:"A real turning point",
+      title:`${year}. You're sixteen.`,
+      body:`Outside, it was ${era}. At sixteen everything felt enormous and unfair and yours to fight. ${name?name+', you':'You'} stood at the first fork where the person you were becoming started arguing with the person everyone expected.`,
+      choices:[
+        { icon:"🎸", head:"You rebelled — loudly.", sub:"Push against every rule you could find.", tone:"consequence",
+          outcome:"You pushed against every rule in reach. It scared the people who loved you and thrilled the part of you that needed to know it existed.",
+          ripple:"Some of it cost you. Some of it became the backbone you'd lean on for the rest of your life. The kid who pushed back at sixteen is the reason the adult you doesn't fold easily now.",
+          line:"Teenage defiance is just self-respect that hasn't learned its manners yet. Don't regret having had a spine early." },
+        { icon:"📚", head:"You kept your head down and played it safe.", sub:"Keep the peace. Get through clean.", tone:"dark",
+          outcome:"You followed the rules, kept the peace, got through it without a scratch. It made the adults comfortable and kept a lid on the storm inside you.",
+          ripple:"It also meant a few things you wanted got quietly shelved 'for later.' This version of you is steady and dependable, and spends part of adulthood learning it's finally safe to want things out loud.",
+          line:"Playing it safe young is neither wrong nor free. Just make sure 'later' eventually arrives." },
+        { icon:"🎨", head:"You poured it all into one obsession.", sub:`Disappear into ${love}.`, tone:"love",
+          outcome:`You funneled everything into ${love}, the way only a teenager can love a thing. The world around you called it a phase.`,
+          ripple:"It wasn't a phase. Whether or not it ever became a career, that obsession taught you how to go deep, how to be great at something, how to lose yourself in work you love. That's a muscle most people never build.",
+          line:"The obsession everyone told you to outgrow was secretly your first training in mastery. Keep a little of it." },
+      ]};
+  }},
+  { age:18, label:"Leaving the Nest", emoji:"🚪", make:(p,year,era)=>{
+    const name=esc(p.name), fam=esc(p.family);
+    return { kicker:"A real turning point",
+      title:`${year}. You're eighteen, and the door out is right there.`,
+      body:`The world was ${era}. Everyone had a plan for you. But the first genuinely enormous choice — go, or stay — was finally yours to make, and no one could make it for you.`,
+      choices:[
+        { icon:"✈️", head:"You left. Chased the wider world.", sub:"Bet on the version of you that hadn't happened yet.", tone:"consequence",
+          outcome:"You packed up and went, toward something bigger and unknown. It was thrilling and lonely in equal measure, and it stretched you into someone your hometown wouldn't have.",
+          ripple:"You gained the world and lost some of home — a few Sunday tables you'd never sit at again. This you learns early that growth and roots pull in opposite directions, and that leaving is its own kind of grief even when it's the right call.",
+          line:"Leaving isn't betrayal. But it always costs something real. Go with your eyes open and your gratitude packed." },
+        { icon:"🏡", head:"You stayed close to home.", sub:"Keep the people you love within reach.", tone:"love",
+          outcome:"You stayed near the people and the ground that made you. You watched younger cousins grow up, kept the old friendships alive, stayed woven into a place that knew your name.",
+          ripple:"Some nights you wondered about the bigger road you didn't take. But this you built something quieter and deeper — a life measured in belonging instead of distance. Not smaller. Just rooted. There's a specific richness the wanderers never quite get.",
+          line:"Staying is not the same as settling. A life spent close to your people is a real and worthy epic." },
+        { icon:"🎲", head:"You took the path nobody predicted.", sub:"Confuse absolutely everyone.", tone:"funny",
+          outcome:"You did the thing no one saw coming. Your family is, to this day, not entirely sure how to describe your life at dinner parties. They gave up trying and just say you're 'doing your own thing.'",
+          ripple:"It was chaos and it was yours. This you learns that a life nobody can summarize in one sentence is often a life actually worth living. You confused everyone and delighted yourself. Fair trade.",
+          line:"If your relatives can neatly explain your life choices at Thanksgiving, you might be playing it too safe." },
+      ]};
+  }},
+  { age:22, label:"The First Real Fork", emoji:"💼", make:(p,year,era)=>{
+    const job=esc(p.job)||"the work you'd end up doing", edu=esc(p.education);
+    const eduLine = (edu && edu!=="Prefer not to say") ? `You had ${/^[aeiou]/i.test(edu)?'an':'a'} ${edu.toLowerCase()} behind you and a blank page in front.` : "The training-wheels years were ending.";
+    return { kicker:"A real turning point",
+      title:`${year}. You're twenty-two.`,
+      body:`${eduLine} The world, which right then was ${era}, wanted to know what you were going to DO with yourself — and for the first time the answer had real weight.`,
+      choices:[
+        { icon:"🚀", head:"You bet on the risky, exciting path.", sub:`Chase ${job} the bold way.`, tone:"consequence",
+          outcome:`You chased ${job} the reckless, exciting way — no safety net, all conviction. It was a rollercoaster, and the era around you (${era}) made it even wilder.`,
+          ripple:"Some of those bets paid off huge and some blew up in your face. But this you learned, young and permanently, that they were survivable — and stopped being afraid of the fall. That fearlessness compounds for decades.",
+          line:"The best time to take the survivable risk is when you're too young to know how scary it should've been." },
+        { icon:"🧱", head:"You took the stable, sensible one.", sub:"Slow and smooth and built to last.", tone:"dark",
+          outcome:"You chose the steady road — the reliable paycheck, the sensible plan, the thing that let everyone stop worrying about you.",
+          ripple:"It gave you a real foundation, and it quietly filed away a bolder dream 'for when things are secure.' This you learns that 'secure' is a horizon that keeps moving — and that at some point you have to decide the dream gets a turn anyway.",
+          line:"Stability is a gift you give your future self. Just don't let it become the excuse that outlives its usefulness." },
+        { icon:"❤️", head:"You followed a person, not a plan.", sub:"Chase the heart instead of the résumé.", tone:"love",
+          outcome:"You made the fork about a person, not a paycheck. Everyone with a spreadsheet told you it was foolish. You did it anyway.",
+          ripple:"Careers can be rebuilt; some people only pass through once. This you sometimes wonders about the road not taken — but rarely regrets choosing the human over the plan. The résumé recovered. The love wrote the actual story.",
+          line:"Sometimes the smartest career move on paper is the dumbest life move in your chest. Know which ledger you're reading." },
+      ]};
+  }},
+  { age:26, label:"The Love Fork", emoji:"💞", make:(p,year,era)=>{
+    const fam=esc(p.family), name=esc(p.name);
+    return { kicker:"A real turning point",
+      title:`${year}. You're twenty-six, and your heart is at a crossroads.`,
+      body:`The world was ${era}, and your own was full of the biggest questions of the twenties: who to keep, who to let go, whether to open all the way up or protect yourself a little longer. ${name?name+', this':'This'} was the fork the rest of your relationships would echo.`,
+      choices:[
+        { icon:"🔓", head:"You let someone all the way in.", sub:"Drop the armor. Risk being known.", tone:"love",
+          outcome:"You took the terrifying risk of being fully seen — flaws, history, all of it. It meant handing someone the power to really hurt you.",
+          ripple:"It didn't go perfectly; that kind of thing never does. But this you learned that the walls that keep the pain out also keep the love out, and chose, again and again, to keep the door open anyway. That's the whole secret nobody tells you.",
+          line:"Being truly known is the scariest thing you'll ever risk, and the only thing that ever actually cures the loneliness." },
+        { icon:"🛡️", head:"You guarded your heart and stayed free.", sub:"Keep your independence intact.", tone:"consequence",
+          outcome:"You kept your freedom, your options, your armor. You built a life that couldn't be knocked over by anyone else's choices.",
+          ripple:"It was genuinely great for a long stretch — and quietly lonely in a way you didn't always admit. This you eventually learns that independence and intimacy aren't enemies, and that the bravest freedom is choosing to need someone anyway.",
+          line:"Self-protection keeps out the knives and the flowers both. At some point, it's worth risking the flowers." },
+        { icon:"🌍", head:"You chose yourself and your own becoming, first.", sub:"Grow into who you are before joining a we.", tone:"love",
+          outcome:"You decided the twenties were for becoming fully yourself before you tied your life to anyone else's. You traveled, or built, or healed, or just figured out who you actually were.",
+          ripple:"You showed up to love later, whole instead of half-formed, and this you learns there's no wrong order — that time spent becoming yourself is never time lost. The people worth having were always going to be worth the wait.",
+          line:"You can't fully share a self you haven't finished meeting yet. Sometimes the most loving choice is to grow first." },
+      ]};
+  }},
+  { age:32, label:"Settle or Chase", emoji:"🔀", make:(p,year,era)=>{
+    const gripe=esc(p.gripe)||"the thing you'd most want to change", job=esc(p.job)||"your work";
+    return { kicker:"A real turning point",
+      title:`${year}. You're thirty-two, and the ground has gotten comfortable.`,
+      body:`Life was working, mostly. The world outside was ${era}. But underneath the fine-ness was a restless whisper about ${gripe} — and a fork between keeping the good-enough life or risking it for a truer one.`,
+      choices:[
+        { icon:"🔥", head:"You blew up the comfortable and chased the dream.", sub:"Risk the good for the great.", tone:"consequence",
+          outcome:`You risked the stable life to finally chase the bigger thing — to fix ${gripe} instead of tolerating it. It terrified everyone, including you.`,
+          ripple:"It cost you comfort and a few certainties, and some of it didn't work. But this you never has to lie awake wondering 'what if I'd tried' — and that particular peace turns out to be worth almost any price.",
+          line:"Comfortable and fulfilled are different destinations. Be sure you didn't accidentally settle into the wrong one." },
+        { icon:"🌳", head:"You chose to be grateful for the good life you had.", sub:"Stop chasing. Start appreciating.", tone:"love",
+          outcome:`You looked hard at the life you'd built and decided it was, in fact, enough — that ${job} and the people around you were a quiet gift you'd been too busy to notice.`,
+          ripple:"This you learns that gratitude isn't giving up; it's a skill, and a rare one. While others burned themselves chasing more, you learned to actually inhabit what you had. Contentment, it turns out, is its own kind of wealth.",
+          line:"Sometimes the bravest, hardest thing isn't chasing more. It's realizing you already have enough and letting yourself feel it." },
+        { icon:"🌗", head:"You kept the life AND started the dream on the side.", sub:"Refuse to fully choose.", tone:"consequence",
+          outcome:`You didn't blow it up and didn't give up. You kept the stable life and built the dream in the margins — early mornings, late nights, stolen weekends aimed at ${gripe}.`,
+          ripple:"It was exhausting and you were split in two for years. But this you never had to gamble everything or abandon anything — and the dream stayed a live coal instead of an ash. Some people don't need all-or-nothing. Some just need to refuse to quit.",
+          line:"You don't always have to choose between the safe life and the dream. Sometimes you just have to carry both, tired and stubborn." },
+      ]};
+  }},
+  { age:40, label:"The Reinvention", emoji:"🦋", make:(p,year,era)=>{
+    const gripe=esc(p.gripe)||"a part of your life that stopped fitting", love=esc(p.love)||"what you love", name=esc(p.name);
+    return { kicker:"A real turning point",
+      title:`${year}. You're forty, and something is quietly asking to change.`,
+      body:`The world was ${era}. You'd built a whole self by now — and a piece of it, maybe ${gripe}, had started to feel like a coat that no longer fit. ${name?name+', you':'You'} stood at the fork between staying who you'd been and becoming someone new.`,
+      choices:[
+        { icon:"🚪", head:"You reinvented yourself completely.", sub:"Start a new chapter from scratch.", tone:"consequence",
+          outcome:`You did the thing people call a crisis and you called a calling — you changed course, leaned into ${love}, and rebuilt around who you'd actually become instead of who you'd been at twenty-five.`,
+          ripple:"It rattled the people used to the old you, and it was scarier at forty than it would've been at twenty. But this you proves the thing everyone secretly needs to see: that it is never, ever too late to become someone new. Watching you do it gave other people permission to try.",
+          line:"Reinvention at forty isn't a crisis. It's proof the story isn't over. You're allowed more than one chapter." },
+        { icon:"🌱", head:"You deepened who you already were.", sub:"Not a new tree. A stronger one.", tone:"love",
+          outcome:"You didn't burn it down. You went deeper instead — got better, wiser, and more fully yourself in the life you already had. Mastery instead of a fresh start.",
+          ripple:"This you learns that reinvention isn't always about becoming someone new; sometimes it's about finally becoming all the way who you already were. The people around you got a richer, steadier version of the person they already loved. Depth is its own adventure.",
+          line:"Not every fork is a hard turn. Sometimes growth just means becoming more completely the person you already are." },
+        { icon:"🫶", head:"You reinvented around the people, not the career.", sub:"Rebuild the life to fit the love.", tone:"love",
+          outcome:`You aimed the reinvention at the things that actually mattered — more time, more presence, a life reshaped around ${love} and the people in it instead of the résumé.`,
+          ripple:"The world doesn't hand out awards for this one. But this you gets something the trophies can't buy: to actually be there, awake, for the handful of people and moments that were always the real point. Years later, this is the choice you're quietly proudest of.",
+          line:"The most radical midlife reinvention isn't a new career. It's building a life that finally has room for what you love." },
+      ]};
+  }},
+];
+
+function renderProfileIntake(){
+  toneGlow(null);
+  chapterEl.textContent="Your Own Life"; pathLabel.textContent=""; pathSvg.innerHTML="";
+  stage.className="stage fade";
+  const p = profile || {};
+  const eduOpts = ["","Still figuring it out","High school","Some college","Trade / vocational","Bachelor's","Graduate degree","Prefer not to say"];
+  const famOpts = ["","Single","In a relationship","Married / partnered","I have kids","It's complicated","Prefer not to say"];
+  const opt=(arr,sel)=>arr.map(o=>`<option ${o===sel?'selected':''} value="${esc(o)}">${o?esc(o):'Choose…'}</option>`).join('');
+  stage.innerHTML=`
+    <div class="scene-kicker">Beta · your real life</div>
+    <div class="scene-title">Let's open a door back into your own life.</div>
+    <div class="base-life">Tell me a little about you. Then you'll pick a real moment from your past, make a different choice, and see the universe it would've opened.</div>
+    <div class="form-grid">
+      <div class="ff"><label>Your name (optional)</label><input id="pf_name" value="${esc(p.name||'')}" placeholder="What should I call you?"></div>
+      <div class="ff"><label>Your age today *</label><input id="pf_age" type="number" min="16" max="100" value="${p.age?esc(p.age):''}" placeholder="e.g. 30"></div>
+      <div class="ff"><label>How far did school go?</label><select id="pf_edu">${opt(eduOpts,p.education||'')}</select></div>
+      <div class="ff"><label>What do you do (or want to)?</label><input id="pf_job" value="${esc(p.job||'')}" placeholder="e.g. teacher, founder, still figuring it out"></div>
+      <div class="ff"><label>Family / relationship</label><select id="pf_family">${opt(famOpts,p.family||'')}</select></div>
+      <div class="ff"><label>One thing you love</label><input id="pf_love" value="${esc(p.love||'')}" placeholder="e.g. music, my kids, basketball"></div>
+      <div class="ff"><label>One thing you'd change about your life</label><input id="pf_gripe" value="${esc(p.gripe||'')}" placeholder="e.g. I play it too safe"></div>
+    </div>
+    <div class="form-err" id="pf_err"></div>
+    <div class="btn-row">
+      <button class="btn" id="pf_go">Find my turning points →</button>
+      <button class="btn ghost" id="pf_back">← Back</button>
+    </div>
+    <div class="privacy">Private by design: nothing you type here is saved or sent anywhere. It lives only in this browser tab, and vanishes when you close it.</div>`;
+  document.getElementById('pf_go').onclick=()=>{
+    const age=parseInt(document.getElementById('pf_age').value,10);
+    const err=document.getElementById('pf_err');
+    if(!age || age<16 || age>100){ err.textContent="Enter an age between 16 and 100 so I can find your turning points."; err.style.display="block"; return; }
+    profile={
+      name:document.getElementById('pf_name').value.trim(),
+      age, birthYear:CURRENT_YEAR-age,
+      education:document.getElementById('pf_edu').value,
+      job:document.getElementById('pf_job').value.trim(),
+      family:document.getElementById('pf_family').value,
+      love:document.getElementById('pf_love').value.trim(),
+      gripe:document.getElementById('pf_gripe').value.trim(),
+    };
+    renderMomentPicker();
+  };
+  document.getElementById('pf_back').onclick=renderTitle;
+}
+
+function renderMomentPicker(){
+  toneGlow(null);
+  chapterEl.textContent="Your Own Life";
+  stage.className="stage fade";
+  const avail=STAGES.filter(s=> s.age <= profile.age);
+  const hi = profile.name ? esc(profile.name)+", pick" : "Pick";
+  const cards = avail.length ? avail.map((s,i)=>`
+    <button class="door" data-i="${i}">
+      <span class="icon">${s.emoji}</span>
+      <span class="txt"><b>Age ${s.age} · <span class="moment-year">${profile.birthYear+s.age}</span></b><span>${s.label} · ${esc(eraDetail(profile.birthYear+s.age).vibe)}</span></span>
+    </button>`).join('') : `<div class="base-life">You're at the very start of the story. Come back in a few years and there'll be turning points to revisit.</div>`;
+  stage.innerHTML=`
+    <div class="scene-kicker">You were born around ${profile.birthYear}</div>
+    <div class="scene-title">${hi} a moment to go back to.</div>
+    <div class="base-life">These are the real forks in your timeline. Step into one, make the other choice, and watch the universe it opens.</div>
+    <div class="doors">${cards}</div>
+    <div class="btn-row"><button class="btn ghost" id="editBtn">← Edit my info</button></div>`;
+  stage.querySelectorAll('.door').forEach(b=> b.onclick=()=>renderLifeScene(avail[parseInt(b.dataset.i,10)]));
+  document.getElementById('editBtn').onclick=renderProfileIntake;
+}
+
+function renderLifeScene(s){
+  toneGlow(null);
+  const year=profile.birthYear+s.age, era=eraContext(year), d=eraDetail(year);
+  const sc=s.make(profile, year, era);
+  chapterEl.textContent=`Age ${s.age} · ${year}`;
+  stage.className="stage fade";
+  const doors=sc.choices.map((c,i)=>`
+    <button class="door" data-i="${i}">
+      <span class="icon">${c.icon}</span>
+      <span class="txt"><b>${c.head}</b><span>${c.sub}</span></span>
+    </button>`).join('');
+  stage.innerHTML=`
+    <div class="scene-kicker">${s.emoji} ${sc.kicker}</div>
+    <div class="scene-title">${sc.title}</div>
+    <div class="base-life">${sc.body}</div>
+    <div class="era-card">
+      <div class="eh">📅 The world in ${year}</div>
+      <div class="era-row"><span class="k">Around you</span><span class="v">${d.world}</span></div>
+      <div class="era-row"><span class="k">Money &amp; work</span><span class="v">${d.money}</span></div>
+      <div class="era-row"><span class="k">The vibe</span><span class="v">${d.culture}</span></div>
+    </div>
+    <div class="shift-prompt">If you'd chosen differently —</div>
+    <div class="doors">${doors}</div>`;
+  stage.querySelectorAll('.door').forEach(b=> b.onclick=()=>renderLifeOutcome(s, parseInt(b.dataset.i,10)));
+}
+
+// AI is available only when the page is served by the backend (not opened as a file).
+const AI_ENABLED = (location.protocol==='http:'||location.protocol==='https:');
+
+async function renderLifeOutcome(s, i){
+  const year=profile.birthYear+s.age, era=eraContext(year), d=eraDetail(year);
+  const sc=s.make(profile, year, era);
+  const c=sc.choices[i];
+  const fallback={outcome:c.outcome, ripple:c.ripple, line:c.line, tone:c.tone, source:'written-in'};
+  if(!AI_ENABLED){ return renderLifeOutcomeView(s,i,year,c,fallback); }
+  // loading state while the AI writes a universe that has never existed
+  const tone=TONE[c.tone]||TONE.love; toneGlow(tone.c);
+  chapterEl.textContent="Computing your universe…";
+  stage.className="stage fade";
+  stage.innerHTML=`<div style="text-align:center;width:100%">
+      <div class="collapse-txt">Opening a universe that has<br>never existed before…</div>
+      <div class="collapse-sub">writing ${year} just for you</div>
+    </div>`;
+  let out=null;
+  try{ out=await fetchAIOutcome(s,i,year,d,c); }catch(e){ out=null; }
+  renderLifeOutcomeView(s,i,year,c, out||fallback);
+}
+
+async function fetchAIOutcome(s,i,year,d,c){
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),28000);
+  try{
+    const res=await fetch('/api/generate',{
+      method:'POST', headers:{'Content-Type':'application/json'}, signal:ctrl.signal,
+      body:JSON.stringify({ profile, stage:s.label, year, era:d, choice:{head:c.head, sub:c.sub}, suggestedTone:c.tone })
+    });
+    clearTimeout(t);
+    if(!res.ok) return null;
+    const j=await res.json();
+    if(j && j.outcome && j.ripple && j.line){
+      return { outcome:j.outcome, ripple:j.ripple, line:j.line, tone:j.tone||c.tone, source:'ai' };
+    }
+    return null; // server fallback (no key) → use the written-in outcome
+  }catch(e){ clearTimeout(t); return null; }
+}
+
+function renderLifeOutcomeView(s,i,year,c,out){
+  const tone=TONE[out.tone]||TONE.love;
+  toneGlow(tone.c);
+  chapterEl.textContent="The universe it opens";
+  stage.className="stage reality";
+  const badge = out.source==='ai' ? `◈ ${year} · WRITTEN LIVE, JUST FOR YOU` : `◈ ${year} · REWRITTEN · ${tone.tag}`;
+  const note = out.source==='ai' ? `<div class="ai-note">✦ Generated live by AI from your details and the real ${year} — plausible fiction, not a prediction.</div>` : '';
+  stage.innerHTML=`
+    <span class="tone-tag" style="color:${tone.c};border-color:${tone.c}66;background:${tone.c}18">${badge}</span>
+    <div class="scene-kicker">You chose: ${c.head}</div>
+    <div class="life-out">${esc(out.outcome)}</div>
+    <div class="ripple-label">…and the ripple through your life</div>
+    <div class="ripple-txt">${esc(out.ripple)}</div>
+    <div class="shift-line">${esc(out.line)}</div>
+    ${note}
+    <div class="btn-row">
+      <button class="btn" id="elseBtn">Make a different choice</button>
+      <button class="btn ghost" id="momentBtn">Visit another moment →</button>
+    </div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn ghost" id="editBtn2">Edit my info</button>
+      <button class="btn ghost" id="menuBtn">Back to the start</button>
+    </div>`;
+  document.getElementById('elseBtn').onclick=()=>renderLifeScene(s);
+  document.getElementById('momentBtn').onclick=()=>{ toneGlow(null); renderMomentPicker(); };
+  document.getElementById('editBtn2').onclick=()=>{ toneGlow(null); renderProfileIntake(); };
+  document.getElementById('menuBtn').onclick=()=>{ toneGlow(null); renderTitle(); };
+}
+
+/* ================= Starfield ================= */
+const canvas=document.getElementById('stars'), ctx=canvas.getContext('2d');
+let starsArr=[], W2, H2;
+function resize(){
+  W2=canvas.width=window.innerWidth; H2=canvas.height=window.innerHeight;
+  const count=Math.min(220,Math.floor(W2*H2/9000));
+  starsArr=Array.from({length:count},()=>({x:Math.random()*W2,y:Math.random()*H2,z:Math.random()*.8+.2,r:Math.random()*1.4+.3,tw:Math.random()*Math.PI*2}));
+}
+function tick(){
+  ctx.clearRect(0,0,W2,H2);
+  for(const s of starsArr){
+    s.tw+=0.02*s.z; const a=.35+Math.sin(s.tw)*.35+.3*s.z;
+    ctx.globalAlpha=Math.max(0,Math.min(1,a)); ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=s.z>.7?"#c9d4ff":"#8b93c9"; ctx.fill();
+    s.y+=s.z*0.06; if(s.y>H2){s.y=0;s.x=Math.random()*W2;}
+  }
+  ctx.globalAlpha=1; requestAnimationFrame(tick);
+}
+window.addEventListener('resize',resize); resize(); requestAnimationFrame(tick);
+
+/* ================= Incoming challenge (viral loop) ================= */
+function walkPath(digits){
+  let id=STORY.start, t={bold:0,bond:0,grit:0,vision:0}, jrny=[], di=0, guard=0;
+  while(guard++<200){
+    const node=STORY.nodes[id];
+    if(!node) break;
+    if(node.ending) break;
+    if(node.checkpoint){ id=node.next; continue; }
+    const ci=digits[di++]; if(ci==null) break;
+    const ch=node.choices[ci]; if(!ch) break;
+    for(const k in ch.eff) t[k]+=ch.eff[k];
+    jrny.push({chosen:ci,count:node.choices.length});
+    id=ch.next;
+  }
+  return {t,jrny};
+}
+function parseChallenge(){
+  try{
+    const p=new URLSearchParams(location.search).get('v');
+    if(p && /^[0-9]{3,30}$/.test(p)){
+      const digits=p.split('').map(Number);
+      const {t,jrny}=walkPath(digits);
+      if(jrny.length) return makeResult(t,jrny);
+    }
+  }catch(e){}
+  return null;
+}
+const incomingChallenge = parseChallenge();
+
+/* ============================================================
+   CHANGE ONE THING — reality-shift mode
+   Step into a life, alter one variable, watch reality rewrite.
+   Every shift carries a tone and a cost. Not all happy.
+   ============================================================ */
+const TONE = {
+  love:{c:'#fb7185',tag:'A LOVE TIMELINE'},
+  dark:{c:'#a855f7',tag:'A DARKER TIMELINE'},
+  funny:{c:'#fbbf24',tag:'AN ABSURD TIMELINE'},
+  consequence:{c:'#22d3ee',tag:'A TIMELINE OF CONSEQUENCE'},
+  scary:{c:'#f43f5e',tag:'A TIMELINE THAT LOOKS BACK'},
+};
+
+const SHIFTS = [
+  {
+    title:"The Message You Never Sent",
+    base:"You're thirty-four. A good life, a quiet one. But some nights you still think about the message you never sent — the one to the person who got away. In the universe next door, you're about to reach in and change exactly one thing about that night.",
+    variables:[
+      { icon:"💌", label:"You sent it.", sub:"Say the thing you swallowed.", tone:"love",
+        shift:"Reality bends. There's a photo on your wall you've never seen — the two of you on a beach, rings on your fingers. A child's drawing on the fridge. This life is warm. This life is full, and it's real, and for a second you can barely breathe.",
+        ripple:"Then you notice the empty chair. In this universe you never got your heart broken that year — so you never moved cities, never walked into that bar, never met the best friend who talked you off the ledge at twenty-nine. Here, that friend is a stranger. Every door you open quietly closes another.",
+        line:"There is no version where you keep everything. That's not a glitch in the multiverse. That's the whole design." },
+      { icon:"🩸", label:"You sent it — and got exactly what you wanted.", sub:"Careful what you wish for.", tone:"dark",
+        shift:"The room dims. You got them. And it slowly, quietly went wrong. The love thinned into something you couldn't name and couldn't leave. You watch a version of yourself years later — smaller, guarded, checking someone else's phone at 3am.",
+        ripple:"The cruelest universes aren't the ones where you don't get what you want. They're the ones where you do, and find out it was never the thing that would've saved you.",
+        line:"Some doors stay locked for a reason you can't see from this side of them." },
+      { icon:"😂", label:"You sent it — to the WRONG person.", sub:"Autocorrect is a force of chaos.", tone:"funny",
+        shift:"Reality hiccups. The message meant for your crush went to Gary. Your manager. At 2:47am. It read: 'I have never stopped thinking about you.' Gary, it turns out, had also never stopped thinking about you.",
+        ripple:"In this universe you and Gary run a food truck now. It is baffling. It is thriving. Your old crush comes by sometimes and orders the al pastor. Nobody involved fully understands the sequence of events that led here. The tacos, however, are transcendent.",
+        line:"Not every parallel life is profound. Some are just... Gary. And honestly? Gary turned out great." },
+    ]
+  },
+  {
+    title:"The Safe Job",
+    base:"You took the safe job. Steady, sensible, forgettable. In a universe a half-step away, you took the other one — the tiny company with the enormous idea. Let's change that single decision and watch it bloom.",
+    variables:[
+      { icon:"💰", label:"You took the startup. It exploded — into money.", sub:"You won. Completely.", tone:"consequence",
+        shift:"The scene floods with light. A penthouse. Headlines. Your face on the cover. You built the thing everyone uses now, the thing that changed how a generation lives. By every measure the world keeps, you won.",
+        ripple:"Then the screen shows you what the thing you built actually did — the attention it strip-mined, the kids it hollowed out, the truth it buried under the feed. In this universe you're rich beyond counting, and you're the quiet villain in a hundred million other people's stories. You just can't see them from up here.",
+        line:"Success and goodness are two different variables. Changing one does not touch the other." },
+      { icon:"🕳️", label:"You took the startup. It failed — and took everything.", sub:"Down to zero.", tone:"dark",
+        shift:"Everything drains to grey. The company died in eighteen months, and it didn't go alone — the savings, the house, the marriage that couldn't carry the weight. You find a version of yourself at forty-one, on a friend's couch, starting over with nothing.",
+        ripple:"But watch him a second. He's laughing at something on the TV. He calls his kid every single night now. He lost everything the safe universe kept — and somehow he moves lighter than you do. Rock bottom, it turns out, has a floor. And you can build on a floor.",
+        line:"The universe where you failed isn't automatically the sad one. Sometimes it's just the honest one." },
+      { icon:"🦙", label:"You took the startup. It pivoted to... llamas.", sub:"Nobody saw this coming.", tone:"funny",
+        shift:"Reality shrugs. The big idea flopped by month three, and in a fever of desperation the founder pivoted the entire company to 'premium llama experiences.' You are, in this timeline, the Vice President of Llama Relations.",
+        ripple:"You cannot explain how this became your life. You have been headbutted eleven times. You have never been happier. Kevin the llama is, unironically, your best friend. The multiverse contains multitudes — and a startling number of them spit.",
+        line:"You cannot strategize your way into the best universe. Sometimes you just have to meet the llama." },
+    ]
+  },
+  {
+    title:"The Stranger on the Dark Road",
+    base:"You drove past a stranded stranger on an empty road one night. You almost stopped. You didn't. In the universe beside this one, you did. Let's change that one small thing.",
+    variables:[
+      { icon:"🤝", label:"You stopped. You helped.", sub:"Ten minutes of your night.", tone:"love",
+        shift:"Warm light spreads across the scene. The stranger, it turns out, was having the worst night of their life — the kind with a capital-E Ending in mind. Your ten minutes rerouted it. Watch the ripple move forward: they went home. Years later, they're a nurse who has pulled forty people back from their own worst nights.",
+        ripple:"Forty people, alive, because you were a little late to dinner one Tuesday. You never learn a single one of their names. In this universe you don't even find out it happened. You just drove home, mildly annoyed at the detour.",
+        line:"The biggest thing you ever do might be something you never find out you did." },
+      { icon:"⚠️", label:"You stopped — and it was a trap.", sub:"Not everyone is stranded.", tone:"dark",
+        shift:"The picture sharpens, cold at the edges. Not every stranger on a dark road is really stuck. In this universe, stopping cost you your car, your wallet, and a genuinely terrible month you'll be paying off for a year.",
+        ripple:"And yet — watch the version of you it happened to. He got more careful. He did not get more closed. He still stops. He still helps. He just checks the mirror first now. Getting burned taught him caution, not cruelty. That part was always his to decide.",
+        line:"A dark universe doesn't get to make you a dark person. That variable stays in your hands." },
+      { icon:"👁️", label:"You stopped — and recognized their face.", sub:"From where, though?", tone:"scary",
+        shift:"Everything goes still and wrong. You knew that face. From where? The scene flickers — a memory that isn't yours, a life you're certain you didn't live, a hallway you've never walked bathed in a light you somehow remember. Some doors, it seems, open onto rooms that were never meant to be found.",
+        ripple:"Some universes charge a toll just for looking. You shut that door fast and drive, and you do not check the rearview. Not every 'what if' wants an answer. The wisdom is knowing which ones to leave shut, and being okay never knowing what was behind them.",
+        line:"The multiverse is not a museum. Some of the exhibits look back." },
+    ]
+  },
+  {
+    title:"The Party You Left Early",
+    base:"You left the party at ten. Responsible. A little boring. In a universe one door over, you stayed. Let's change that one skippable thing and see where the night actually goes.",
+    variables:[
+      { icon:"❤️", label:"You stayed, and talked to the one by the window.", sub:"The person you almost ignored.", tone:"love",
+        shift:"The room warms by a few degrees. That person by the window you were about to walk past — in this universe, you didn't. One conversation, and the whole trajectory of two lives bends, gently, toward each other.",
+        ripple:"It isn't a fairy tale. This love has its own hard chapters, its own slammed doors and long silences. But it's real, and it's yours, and every bit of it started because you didn't reach for your coat at ten o'clock.",
+        line:"The best universes almost always hinge on the smallest, most skippable moments." },
+      { icon:"🎤", label:"You stayed one more hour.", sub:"What's the worst that happens?", tone:"funny",
+        shift:"The night reshuffles itself. In that extra hour you got dragged into a karaoke duet with a total stranger, someone filmed it, and it went mildly, regionally viral. You are now, to roughly forty thousand strangers online, 'the karaoke person.'",
+        ripple:"It led to nothing and to everything. One of those strangers messaged you: 'that clip was the day I decided not to give up.' You made a person's list of reasons to stay alive. From a karaoke duet. You will absolutely take it.",
+        line:"You never know which throwaway night becomes the hinge of somebody else's whole life." },
+      { icon:"🌫️", label:"You stayed — too long.", sub:"One more turned into many.", tone:"dark",
+        shift:"The colors sour and thicken. In this reality, staying was the first night of a habit that became a problem that became years. The party never quite ended, and it cost far more than one evening ever should.",
+        ripple:"But the version of you who lived it? He got out. It took a while, and it wasn't clean. He's got the scars and the meetings and the hard-won ordinary mornings now. He is not who this universe tried to make him. He rewrote the ending himself, page by page.",
+        line:"Even the universe that tries to swallow you doesn't get the last word. You do." },
+    ]
+  },
+  {
+    title:"The Phone Call You Almost Missed",
+    base:"Your phone is buzzing. It's someone who loves you, calling at an inconvenient time — the kind of call you usually let ring out with a guilty little 'I'll call back later.' In the universe next door, you pick up. Let's change that one thing.",
+    variables:[
+      { icon:"💚", label:"You picked up, and just listened.", sub:"No reason. Just their voice.", tone:"love",
+        shift:"The room goes soft and gold. It was nothing urgent — they just wanted to hear you. You talked forty minutes about nothing at all. You didn't know it then, but in this universe that ordinary call becomes the last long conversation you ever get to have with them.",
+        ripple:"In the universe where you let it ring, you never got those forty minutes. You got a voicemail you couldn't bring yourself to delete for years. The whole difference between the two universes is one swipe of a thumb — and the entire shape of your grief.",
+        line:"Pick up. It's almost never about what they're calling to say. It's that they called, and you were there." },
+      { icon:"🩶", label:"You picked up, and heard the truth.", sub:"The thing they'd held for years.", tone:"dark",
+        shift:"The light tilts, wrong. They'd been carrying something for decades, and tonight it finally came out. In an instant you understood your whole childhood differently — every silence, every closed door, recolored by one sentence you can never un-hear.",
+        ripple:"Some truths set you free. Others just move the weight from their shoulders onto yours. In this universe you carry it now, and you can't decide if knowing was a gift or a wound. Maybe it's the same thing, wearing two faces.",
+        line:"Not every door you open leads somewhere brighter. But it's still yours to have walked through with your eyes open." },
+      { icon:"😹", label:"You picked up — to an hour of pocket.", sub:"A world-class butt-dial.", tone:"funny",
+        shift:"Reality faceplants. It was an accident. Sixty unbroken minutes of muffled fabric, a grocery run, a heated one-sided argument with a self-checkout machine, and — inexplicably — the entire second act of a musical, performed under their breath.",
+        ripple:"You never told them you heard all of it. You now know, forever, that they secretly know every word to showtunes and refer to the produce section as 'the jungle.' Some universes don't hand you wisdom. They hand you blackmail material and a warm, weird kind of love.",
+        line:"Half of intimacy is just accidentally overhearing who someone is when they think no one's listening." },
+    ]
+  },
+  {
+    title:"The Version of You That Survived",
+    base:"You're looking at who you turned out to be — the armor, the habits, the way you move through a room. Most of it you built young, to survive something. In this universe, you can reach back and change one thing about the kid who became you.",
+    variables:[
+      { icon:"⚔️", label:"You made that kid fearless.", sub:"No hesitation. Ever.", tone:"consequence",
+        shift:"The scene surges with force. Gone is the second-guessing, the flinch before the leap. This version of you always moved first, took every swing, refused every 'no.' You watch them win rooms and take ground.",
+        ripple:"Then you see the wreckage in the margins — the people run over on the way up, the bridges torched for nothing but momentum, the quiet ones who needed you to slow down and be gentle instead of brave. Fearlessness with no brakes isn't courage. It's just a faster way to hurt people you love.",
+        line:"The trait that saves you and the trait that costs you are, more often than not, the exact same trait." },
+      { icon:"🕊️", label:"You made that kid soft.", sub:"Kept the tenderness the world tries to beat out.", tone:"love",
+        shift:"Warmth floods in. This version kept the gentleness most of us lose. They forgave faster, loved louder, cried without shame. People feel safe around this you — children and animals find them across a crowded room.",
+        ripple:"It cost them, too. Softness in a hard world gets taken advantage of, and this you has the scars to prove it — the times being kind meant being last, being used, being underestimated. And still they chose it again the next morning. That's not weakness. That's the bravest thing on this whole list.",
+        line:"Staying gentle after the world hands you every reason not to is a strength most people never even attempt." },
+      { icon:"🎭", label:"You made that kid funny.", sub:"Never a silent, sad second.", tone:"dark",
+        shift:"The scene brightens too fast, too bright. This version learned to make everyone laugh — the life of every room, quick with a joke, beloved on contact. Nobody who meets them ever feels down for long.",
+        ripple:"But watch them alone, after the room clears and the jokes stop. The humor began as a shield against a house that wasn't safe, and it never fully stopped being one. This you is loved by everyone and known by almost no one. The funniest people are so often the ones carrying the most, quietly, behind the punchline.",
+        line:"Some armor is so useful and so charming that you forget it's armor. Take it off sometimes. Let someone see." },
+    ]
+  },
+  {
+    title:"The City on the Map",
+    base:"There was a moment you chose where to live — a pin dropped on a map that quietly decided who you'd meet, who you'd become, which version of your life switched on. Let's move the pin and slide into that other world.",
+    variables:[
+      { icon:"🏡", label:"You stayed in your hometown.", sub:"Never left. Roots down deep.", tone:"love",
+        shift:"The world contracts, warm and close. You know the person at the coffee counter, and the one before them. Your kids grow up down the road from where you did. There's a Sunday table that's never empty, a whole town that watched you become you.",
+        ripple:"The map shows the cost in faded ink: the career that needed a bigger stage, the version of you that would've stretched further, seen more, done the thing you still sometimes dream about. Roots and wings pull in opposite directions. You chose roots. Some nights the wings ache anyway.",
+        line:"There's no wrong pin on the map. There's only the life you water and the one you wonder about." },
+      { icon:"🌃", label:"You moved to the biggest city you could find.", sub:"Chase the bigness.", tone:"dark",
+        shift:"The scene explodes outward — lights, noise, eight million strangers. The bigness delivered: the opportunities, the pace, the electric feeling of standing where it all happens.",
+        ripple:"Then the picture pulls back and you see how it swallowed you. The bigness that thrilled you also made you anonymous and always, faintly, behind. This you achieved more and belonged less. The city gives you everything except the one thing your small town gave for free — people who'd notice if you disappeared.",
+        line:"Be careful moving somewhere that makes you feel big. Sometimes it's just that you got smaller." },
+      { icon:"🎲", label:"You dropped the pin at random.", sub:"Eyes closed. Finger down.", tone:"funny",
+        shift:"Reality shrugs and rolls the dice. You end up in a town of four thousand people you'd never heard of, famous only for an annual festival celebrating a suspiciously large vegetable.",
+        ripple:"You have no idea how this became home. You're on the festival committee now. You have Opinions about the gourd. Against every prediction, these are some of the finest people you've ever known, and you would fight a stranger who insulted the vegetable. The multiverse rewards the occasional totally unhinged decision more than anyone admits.",
+        line:"Some of the best universes are the ones you'd never have chosen on purpose. Drop the pin blind once in a while." },
+    ]
+  },
+  {
+    title:"The Secret",
+    base:"You've been carrying a secret. Heavy, quiet, load-bearing. There was a moment you almost set it down — almost said it out loud. In the universe beside this one, you did. Let's change that one thing and watch it land.",
+    variables:[
+      { icon:"🫧", label:"You told it — and the weight lifted.", sub:"Finally said out loud.", tone:"love",
+        shift:"The air itself seems to loosen. You said the thing, and the people who mattered didn't flinch — they moved closer. The secret you were sure would end everything turned out to be the door into being fully known for the first time in your life.",
+        ripple:"You spent years believing the secret was the worst thing about you. In this universe you learn it was only the loneliest — and that the loneliness, not the secret, was the actual prison. The lock was on the inside the whole time.",
+        line:"The thing you're most afraid to say out loud is usually the exact thing standing between you and being loved for real." },
+      { icon:"💥", label:"You told it — and it detonated.", sub:"Some secrets hold the roof up.", tone:"dark",
+        shift:"Everything cracks. Some secrets are heavy because they're load-bearing — pull them out and the structure comes down. You told the truth, and it was true, and it cost you people, a home, a version of your life. The relief and the ruin arrived in the very same breath.",
+        ripple:"And yet — the you who lived it will tell you, years later and quieter, that they'd do it again. A life built on a hidden thing isn't a life; it's a held breath. This you finally exhaled and rebuilt on ground that was at least real. Slower. Truer. Standing.",
+        line:"Sometimes the honest universe costs you everything and is still the better one to live in." },
+      { icon:"👁️", label:"It was never your secret to tell.", sub:"The words belonged to someone else.", tone:"scary",
+        shift:"The room goes cold and still. Because the moment the words left your mouth, you understood they weren't yours to say — and that some doors, once opened, let out things that don't go back in. The scene flickers with consequences fanning outward: faces you didn't mean to hurt, a trust shattering in slow motion.",
+        ripple:"Some universes punish you not for lying, but for telling a truth that wasn't yours. You close this door slowly, carefully, and carry the lesson into every timeline: not every secret is a weight to be dropped. Some are a trust to be held.",
+        line:"Learn the difference between a burden and a promise. In the dark, they can feel exactly the same." },
+    ]
+  },
+  {
+    title:"The Kid Nobody Sat With",
+    base:"There was a kid, years ago — the one who always sat alone. You remember them at the edge of everything, and you remember the moment you quietly decided what to do about it. Let's change that one small thing.",
+    variables:[
+      { icon:"🤍", label:"You sat down next to them.", sub:"Shared half a sandwich.", tone:"love",
+        shift:"Warmth blooms across the whole memory. You didn't do anything heroic — you just sat down, split a sandwich, asked a question. But watch the ripple move: that kid, decades later, tells the story of the day someone finally saw them as the day their life turned.",
+        ripple:"You became a chapter in someone's survival and never even knew it. In this universe there's a grown adult, thriving, who keeps a version of you in their head as living proof that people can be kind. From a sandwich. From ten minutes at a lunch table. That's the whole secret of changing the world, and it's almost embarrassingly small.",
+        line:"You'll never know which small kindness someone is keeping alive inside them like a pilot light. Do them anyway." },
+      { icon:"🌑", label:"You looked away.", sub:"You weren't cruel. You just didn't.", tone:"dark",
+        shift:"The color drains out of the memory. You weren't mean. You just... didn't. You looked away, like everyone else, the moment passed, and the kid stayed alone. It cost you nothing. That turned out to be the problem — it felt like nothing.",
+        ripple:"In this universe the regret finds you at odd hours for years, small and sharp — not because you did something wrong, but because you did nothing when doing something was so cheap. The you here eventually turns that ache into fuel and becomes the person who never looks away again. The guilt, at least, taught you what the kindness might not have.",
+        line:"The opposite of love isn't cruelty. It's looking away when reaching out would've cost you almost nothing." },
+      { icon:"🛡️", label:"You stood between them and the bully.", sub:"Out loud. In front of everyone.", tone:"consequence",
+        shift:"The scene sharpens with adrenaline. You didn't just sit down — you stepped in, loudly, in front of everyone, when it got ugly. It made you a target for a while. It cost you some standing, some peace, a couple of genuinely hard weeks.",
+        ripple:"It also made you a friend for life — and it made you someone, too: the kind of person who discovers, when it counts, that they'll actually stand up. That's not a small thing to learn about yourself young. The bully's long forgotten. That friendship, and that knowledge, you kept for good.",
+        line:"Standing up costs something real. It also tells you, forever, exactly what you're made of." },
+    ]
+  },
+  {
+    title:"The Last Thing You Said",
+    base:"There's a conversation you'd give anything to rewrite — the last one, before someone was gone. You've replayed it a thousand times. In the universe next door, you get to change the last thing you said. Choose gently.",
+    variables:[
+      { icon:"❤️", label:"You said 'I love you.'", sub:"Plain. Unguarded. Out loud.", tone:"love",
+        shift:"The whole memory turns to gold. No hedging, no waiting for a better moment — just: I love you. And in this universe, that's the sentence that hangs in the air forever. The last note, and it's a warm one.",
+        ripple:"The you in the other universe — the one who said something forgettable instead — would trade years to stand where you're standing. There's a grief that comes with a clean goodbye and a grief that comes with an unfinished one. They are not the same weight. This one, you can carry.",
+        line:"Say it now. Say it clumsy, say it early, say it too often. The people who get a clean last word are the lucky ones." },
+      { icon:"🌫️", label:"You said nothing.", sub:"You froze. Nobody knows it's the last time.", tone:"dark",
+        shift:"The scene dims and holds its breath. You froze, or you were angry, or you simply didn't know it was the last time — nobody ever does. The silence where a word should have been becomes the loudest thing in your life.",
+        ripple:"But here's what this hard universe teaches the you who lives it: the silence was not the truth of what you felt. They knew. Love isn't only in the final sentence — it's in the thousand ordinary ones before it. You spend years learning to forgive yourself for the ending, and eventually you do. That forgiveness is its own kind of goodbye.",
+        line:"One missed word doesn't erase a whole history of showing up. Be as gentle with yourself as you'd be with anyone else carrying this." },
+      { icon:"🙂", label:"You made them laugh.", sub:"The dumb joke only you two got.", tone:"funny",
+        shift:"The memory lifts, unexpectedly light. You didn't say anything profound. You said something stupid — the inside joke, the terrible pun, the dumb thing only the two of you ever found funny — and they laughed. That laugh is the last sound.",
+        ripple:"For a long time you thought you'd wasted the moment on a joke. Then you realized: you sent them off laughing. In a life full of heavy, you handed them one last piece of light. Not every goodbye needs to be a speech. Some of the best ones are just the two of you, cracking up, one final time.",
+        line:"Sometimes the most loving last word isn't 'I love you.' It's the joke only they would get." },
+    ]
+  },
+  {
+    title:"The Mirror That Showed You Later",
+    base:"You wake to find a mirror that doesn't show now — it shows you, ten years on. Older. Changed. It only lets you truly look once, and what you do with what you see is the one thing you get to change.",
+    variables:[
+      { icon:"🧭", label:"You heeded the warning.", sub:"Changed course that same week.", tone:"consequence",
+        shift:"The glass showed a version of you worn thin by a road you're currently walking — and you believed it. You changed direction that week: the job, the habit, the person. The scene reshapes into someone lighter, steadier, who dodged a wall they never actually hit.",
+        ripple:"But here's the strange cost of a warning heeded: you never get to know how bad it would've been. This you sometimes doubts the whole thing, wonders if they gave up a road that might've been fine. Prevention is invisible. You saved yourself from something you'll never get to see — and part of you will always wonder if it was real.",
+        line:"The reward for dodging the wall is that you never get to see the wall. Trust the swerve anyway." },
+      { icon:"🕯️", label:"You couldn't stop looking.", sub:"One look was never going to be enough.", tone:"scary",
+        shift:"The mirror offered one look. You took a hundred. The scene darkens as the future-you in the glass starts to feel more real than the present-you standing before it. You begin living for the reflection, editing every ordinary day to match it, or to escape it.",
+        ripple:"That's the trap: a life spent staring at what's coming is a life you aren't actually living. This you missed a decade of warm, unrepeatable now because they couldn't look away from a maybe. The future became a haunted house they moved into years early. Some doors are cursed not by what's behind them, but by how long you stand there staring.",
+        line:"Knowing what's coming is worthless if it robs you of the only moment you ever actually get to stand in." },
+      { icon:"🪞", label:"You made a face at it.", sub:"Pulled the dumbest one you had.", tone:"funny",
+        shift:"Reality snorts. Ten-years-older you was mid-sentence, looking wise and important, and present-you responded by pulling the single dumbest face in your arsenal and fogging up the glass. Future-you, visibly, broke character and laughed.",
+        ripple:"You learned nothing about your future. You did learn that even a decade from now, you're still exactly the kind of idiot who'd make a face at a prophetic mirror — and honestly, that was more reassuring than any prophecy. Some part of you survives everything. It's the part that still thinks fart jokes are timeless.",
+        line:"Maybe the most hopeful thing you can know about your future self is that they'd still find you funny." },
+    ]
+  },
+  {
+    title:"The Wallet Full of Cash",
+    base:"You find it on the sidewalk — a wallet, thick with cash, nobody around, no camera in sight. A whole month's rent, just sitting there. In the universe beside this one, you make a different call. Let's change it.",
+    variables:[
+      { icon:"🤲", label:"You tracked down the owner and returned it.", sub:"Every last dollar.", tone:"love",
+        shift:"Warm light. It took effort — an ID, a couple of calls, an awkward drive across town. The owner turned out to be someone barely hanging on, and that cash was the whole difference between okay and catastrophe. You handed it back and watched a stranger nearly come apart with relief.",
+        ripple:"You never got a reward. You got something money can't buy: the exact knowledge of who you are when no one is watching. In this universe, on your hardest nights, you can reach for that memory like a stone in your pocket — proof, in your own handwriting, that you're good. That's worth more than a month's rent, and it compounds.",
+        line:"Integrity is just what you do when there's no camera. It pays in a currency you can spend for the rest of your life." },
+      { icon:"💸", label:"You kept it.", sub:"Finders keepers. No harm done.", tone:"dark",
+        shift:"The scene dims a shade. You told yourself finders-keepers, and honestly, it helped — that month was easier. Nothing bad happened. No lightning, no cop, no consequence at all. That was almost the worst part.",
+        ripple:"Because it got a little easier to do the next thing. And the next. Nobody becomes a person they don't recognize in one leap — it's always a quiet series of small, victimless, nobody's-watching choices that were technically fine. This you is doing okay. This you also can't quite hold their own eyes in the mirror over a thing they'd swear they forgot. They didn't.",
+        line:"The choices that change who you are almost never feel like the moment they happen. That's exactly why they're the dangerous ones." },
+      { icon:"🕵️", label:"You kept it — and it was marked.", sub:"That money wasn't lost.", tone:"scary",
+        shift:"Everything goes cold and quiet. That money wasn't dropped. It was bait, or evidence, or owed to people who count it very carefully. The scene sharpens into a slow-dawning dread as you realize the wallet found YOU — and now something is retracing its steps back to your door.",
+        ripple:"Some universes hand you a gift that's really a hook. You spend this timeline glancing over your shoulder, learning the hard way that free money is the most expensive kind. You get out of it — mostly — but you never again mistake luck for luck without first asking who it belongs to.",
+        line:"When the universe hands you something for nothing, the first question isn't 'can I keep it.' It's 'who's coming back for it.'" },
+    ]
+  },
+  {
+    title:"The Door in the Basement",
+    base:"You got the place cheap — too cheap, in hindsight. On the third night you hear it: something behind the little door in the basement you were told to leave shut. In the universe next door, you don't leave it shut. Let's change that.",
+    variables:[
+      { icon:"🔦", label:"You opened it and looked.", sub:"You had to know.", tone:"scary",
+        shift:"The temperature drops ten degrees in a single breath. The door swings into a dark that feels older than the house, and the sound stops — because it heard you, and now it's listening back. The scene holds absolutely still. Something in there has been waiting a very long time for someone curious enough.",
+        ripple:"You shut it. Fast. You're moved out by the weekend. And for the rest of your life you understand a thing most people are lucky never to learn: some doors are shut FOR you, not against you — and the only winning move is to respect the ones you were warned about. You never find out what it was. That part is the mercy.",
+        line:"Not every locked door is a mystery to solve. Some are a kindness left behind by whoever locked it first." },
+      { icon:"🚪", label:"You ignored it and stayed.", sub:"You were tired of running.", tone:"dark",
+        shift:"The scene curdles slowly. You told yourself it was pipes, raccoons, the house settling. You were tired of running from things. So you stayed, and you learned to live alongside the sound — and the sound learned to live alongside you.",
+        ripple:"This is the quiet horror nobody warns you about: you can get used to almost anything if you decide it's normal. This you sleeps fine now. This you also stopped inviting anyone over a while back, and couldn't quite tell you when. Some things don't have to hurt you to change you. They just have to move in and wait.",
+        line:"Be careful what you learn to live with. The scariest hauntings are the ones you've stopped noticing." },
+      { icon:"🥪", label:"You made friends with it.", sub:"Against all horror-movie advice.", tone:"funny",
+        shift:"Reality raises an eyebrow. Against every instinct and every scary movie ever made, you cracked the door, slid a sandwich into the black, and said 'hey — we should talk.' There was a very long pause. Then, faintly, from the dark: 'is it turkey?'",
+        ripple:"In this universe you have a roommate now. It doesn't pay rent, it's genuinely terrible at charades, and it will not explain the smell — but it's oddly great company and it keeps burglars away permanently. Not every unknown wants to hurt you. Some of them are just lonely, and, as it happens, deeply invested in deli meat.",
+        line:"Sometimes the thing in the dark isn't a monster. Sometimes it's just something nobody ever thought to be kind to." },
+    ]
+  },
+  {
+    title:"The Other You",
+    base:"There's a version of you in the universe next door who made every choice you didn't. Tonight, for one impossible moment, the wall between you thins — and you can reach across. Let's change what you do with that.",
+    variables:[
+      { icon:"🫂", label:"You met them, and talked all night.", sub:"The you who zigged where you zagged.", tone:"love",
+        shift:"Warmth pools in the space between two versions of one soul. You sat with the you who went the other way, and instead of envy there was recognition — two people from the same start who both, in their own way, kept going. You compared scars. You laughed at the same jokes. You forgave each other for choices neither of you made.",
+        ripple:"You went back to your own life lighter. Not because theirs was worse — it wasn't, just different — but because you finally understood there was never a 'right' you that got away. There's only this one, doing their best down one of infinite roads. Meeting yourself turns out to be the fastest cure for wishing you were someone else.",
+        line:"The other you isn't your competition. They're proof that whichever road you took, some version of you was always going to make it work." },
+      { icon:"🩸", label:"They'd become everything you're afraid of.", sub:"Same face. Hollowed out.", tone:"scary",
+        shift:"The air goes wrong. You reached across and met the you that let the worst win — your face, your voice, scooped empty. They smiled at you like they knew something you didn't, and the smile was the scariest part. 'We're closer than you think,' they said. 'I'm just a few more bad nights down the road.'",
+        ripple:"You pulled back across the wall shaking. But you carried something home: a map of exactly where the road leads if you stop paying attention. This you never becomes them — not because you're better, but because you've seen the destination now, and you check your heading more often. Sometimes the most useful ghost is the one wearing your own face.",
+        line:"You're always a few choices from a version of yourself you'd be terrified to meet. That's not a threat. That's the steering wheel." },
+      { icon:"🔀", label:"You swapped lives for a day.", sub:"Just to see.", tone:"funny",
+        shift:"Reality shrugs and shuffles the deck. You stepped into their life, they stepped into yours, and both of you instantly realized you had no idea how the other one's coffee machine, relationships, or job actually worked. Chaos, gently, unfolded across two universes at once.",
+        ripple:"You handed each other's lives back by dinner, both deeply relieved, both a little more grateful for the specific mess you already know how to navigate. The grass is always greener until you have to find where the other person keeps their spoons. Your life, spoons and all, looked a whole lot better on the walk home.",
+        line:"Everyone's life looks easier from outside it. Spend one day in it and you'll sprint back to your own weird, familiar chaos." },
+    ]
+  },
+  {
+    title:"The Unlocked Phone",
+    base:"Their phone is right there, unlocked, and they've stepped out of the room. Whatever you've been wondering, whatever you've been afraid to ask — the answer is thirty seconds and one scroll away. In the universe next door, you make a different choice. Let's change it.",
+    variables:[
+      { icon:"🤍", label:"You set it down and asked them instead.", sub:"Out loud. The scary way.", tone:"love",
+        shift:"The room stays warm. You put the phone face-down and, when they came back, you asked the actual question out loud — the scared, vulnerable, real one. It was awkward. It was also the start of the most honest stretch your relationship ever had.",
+        ripple:"In the universe where you scrolled, you'd have gotten an answer but lost the ability to ever ask again. Trust, once you go around it, doesn't fully grow back. This you chose the harder door — the conversation instead of the search — and got the one thing surveillance can never give: a person who chose, freely, to tell you.",
+        line:"You can find out, or you can be told. They feel similar and they are not. One builds trust. The other quietly spends it." },
+      { icon:"📱", label:"You looked. And you can't unsee it.", sub:"Now you know. Forever.", tone:"dark",
+        shift:"The light goes flat and cold. You scrolled, and you found something — maybe the thing you feared, maybe something smaller and stranger. It hardly matters. What matters is that this version of you now knows, can never un-know, and can never explain how they know.",
+        ripple:"The information solved nothing and poisoned everything. You now carry a secret about how you learned a secret — a room hidden inside a room. This you spends the relationship performing an innocence they no longer have. The worst part of looking wasn't what you saw. It was who you had to become to keep having seen it.",
+        line:"Some knowledge doesn't set you free. It just hands you a heavier thing to carry, alone, forever." },
+      { icon:"👁️", label:"You looked — and it was looking back.", sub:"That wasn't their phone.", tone:"scary",
+        shift:"Everything tilts. The screen wasn't showing their messages. It was showing yours — conversations you never had, plans you never made, a whole parallel life someone, somewhere, has been living as you. The phone in your hand was never really theirs. The last message on the screen simply read: 'stop looking.'",
+        ripple:"You put it down. You do not pick it up again. Some universes let you snoop right up until you find the one door that was watching for you the whole time. This you learns the oldest lesson there is: be careful what you go hunting for in the dark. Every so often, it has been hunting you first.",
+        line:"The hunger to know everything is the easiest hook in the multiverse to bait. Sometimes the kindest answer is the one you don't chase." },
+    ]
+  },
+  {
+    title:"The Ordinary Day, On Repeat",
+    base:"You're handed one gift: a single ordinary day, given back to live again. Not a special one — a Tuesday. Groceries, traffic, a small argument, a sunset you never looked at. In the universe next door, you replay it differently. Let's change it.",
+    variables:[
+      { icon:"🌅", label:"You lived it fully, exactly as it was.", sub:"Changed nothing. Just paid attention.", tone:"love",
+        shift:"The whole day turns luminous. You changed not one thing — you just paid attention this time. The barista's new haircut, the way the light hit the kitchen at 4pm, the specific dumb laugh of someone you love. The same Tuesday, lived awake instead of asleep.",
+        ripple:"And it wrecked you, gently, to realize how many of these you'd sleepwalked straight through. This you goes back to their real life and starts treating ordinary days like the rare things they secretly are. You didn't need to change the day. You needed to change how present you were inside it. Nobody tells you that's the whole trick.",
+        line:"You don't get infinite Tuesdays. You get a specific number — and you're spending one of them right now. Look up in a second." },
+      { icon:"🔧", label:"You tried to fix everything.", sub:"Run it like a puzzle.", tone:"consequence",
+        shift:"The scene tightens with effort. You spent the replay optimizing — dodging the traffic, winning the argument, landing the perfect line at the perfect second. You ran that Tuesday like a puzzle to be solved. And you solved it.",
+        ripple:"And it was hollow. A day managed to perfection is still a day you spent managing instead of living. This you learns that chasing the flawless day is its own quiet prison — that the argument you 'won' cost you the closeness a clumsy, honest one would have built. Perfect and alive are different targets. You cannot aim at both.",
+        line:"A perfectly optimized life and a fully lived one are not the same life. Decide which Tuesday you actually want." },
+      { icon:"🎪", label:"You went feral, because it 'wouldn't count.'", sub:"It's just a rerun, right?", tone:"funny",
+        shift:"Reality gasps. Certain the replay was a freebie, you quit your job at 9am, told three people precisely what you thought of them, ate dessert first, and danced in a public fountain. Consequences? None, you assumed. It's a rerun.",
+        ripple:"It was not a rerun. Turns out every Tuesday counts, even the ones you're sure are practice. You spend the following week apologizing, rehired out of pity, weirdly exhilarated and mildly damp. Worth it? Unclear. But you did learn there's a version of you in there who'd dance in a fountain — and it's genuinely nice to know they exist.",
+        line:"There are no practice days. But maybe live like the fountain's always an option, just a little more often." },
+    ]
+  },
+  {
+    title:"The Dream You Handed Back",
+    base:"There was a dream once — the big, impractical, whole-heart one. And there was a moment you quietly handed it back in exchange for something safer, realer, more responsible. In the universe next door, you made the other trade. Let's change it.",
+    variables:[
+      { icon:"❤️", label:"You chose the responsible thing — on purpose, with love.", sub:"Clear eyes. Open hand.", tone:"love",
+        shift:"The scene settles, warm and unshowy. You let the dream go — not because you failed, but because you chose the person, the kid, the steady ground, with clear eyes and no clenched fist. No martyrdom. No resentment. Just love, quietly deciding.",
+        ripple:"Some nights you still feel the ghost of the dream, and that's allowed. But this you knows a secret the dream-chasers sometimes miss: a life given freely to people you love isn't a smaller life. It's a quieter kind of epic — the kind with no audience and no highlight reel, and a depth the loud version never gets near.",
+        line:"Letting a dream go on purpose, without bitterness, is one of the most underrated brave things a person can do." },
+      { icon:"🏆", label:"You chased the dream, and caught it — empty.", sub:"Got the exact thing you swore you'd trade anything for.", tone:"dark",
+        shift:"Light floods in, then thins. You got it. The precise thing you swore you'd trade anything for. And standing inside the achieved dream, you felt the specific vertigo of arriving somewhere and discovering the view was never actually the point.",
+        ripple:"This you learns the hardest lesson success has to teach: a dream chased at the cost of everyone who loved you is a trophy in an empty room. It isn't that the dream was wrong. It's that you can win the thing and lose the reason you wanted it. This you spends the back half of the story learning to want better things.",
+        line:"Be very sure the dream is the destination — and not just a beautiful excuse to run from something you should have stayed for." },
+      { icon:"🌗", label:"You found a way to keep a piece of it.", sub:"Refused to fully choose.", tone:"consequence",
+        shift:"The scene splits the difference and glows in two colors at once. You didn't fully chase it and didn't fully bury it. You kept a corner — the dream at nights, on weekends, in stolen hours — refusing to let it die even as you carried the responsible life on the other shoulder.",
+        ripple:"It's the hardest road: tired, split, never all-the-way at either thing. But this you never has to wonder 'what if,' because they never fully let go. The dream stayed a live coal instead of ash. Some universes aren't about all-or-nothing. Some are about the stubborn, exhausting art of refusing to choose.",
+        line:"You don't always have to pick between the dream and the duty. Sometimes the bravest life is the one that quietly carries both." },
+    ]
+  },
+];
+
+const HORROR_PACK = [
+  { title:"The Face in the Crowd",
+    base:"You've started seeing the same stranger everywhere — the train, the café, the edge of every photo. Today they're across the street, watching. In the universe next door, you do something about it. Let's change one thing.",
+    variables:[
+      { icon:"🚶", label:"You crossed the street to confront them.", sub:"Enough. Face it.", tone:"scary",
+        shift:"The air goes thin and electric. You walked right up — and up close, they didn't flinch or explain, just tilted their head like they'd been waiting for you to finally notice. 'Took you long enough,' they said, in a voice you were almost sure you'd heard before. Yours.",
+        ripple:"You backed away. They didn't follow — they never had to, because after that day you started seeing them in mirrors, in windows, in the dark behind your own eyes when you blinked. Some things you can't un-notice once you've looked straight at them. Attention, it turns out, is a door that only opens one way.",
+        line:"Be careful what you decide to finally look at directly. Some things stay harmless only while you ignore them." },
+      { icon:"🏃", label:"You ran and never looked back.", sub:"Change everything to avoid them.", tone:"dark",
+        shift:"The scene tightens and greys. You didn't confront it. You ran — changed your route, your café, your patterns, your whole life, all to avoid a face you were never even sure meant you harm.",
+        ripple:"You never saw them again. But watch this you a year later: smaller, more careful, flinching at strangers, a life quietly reorganized around a fear you never actually tested. The face never touched you. The running did all the damage by itself. That's the oldest trick dread knows.",
+        line:"Fear you refuse to face doesn't vanish. It just quietly redecorates your entire life while you're not looking." },
+      { icon:"🪞", label:"You realized it was your own face.", sub:"Get close enough to see.", tone:"scary",
+        shift:"Everything stops. You got close enough to see, and the stranger haunting the edges of your life was you — the same face, wearing an expression you've never once made in a mirror. Patient. Knowing. A little sad. Watching you like a warning you hadn't decoded yet.",
+        ripple:"They opened their mouth to tell you which choice not to make — and the universe snapped shut before the words landed. You spend this timeline replaying the shape of their lips, trying to read a warning you'll now never quite hear. Some doors show you the messenger and keep the message.",
+        line:"The scariest thing in the multiverse isn't a monster. It's the version of you who came back to warn you, and ran out of time." },
+    ]},
+  { title:"The Message From the Old Number",
+    base:"Your phone lights up with a text from a number you deleted years ago — because the person it belonged to is gone. The message just says: 'you up?' In the universe next door, you answer. Let's change it.",
+    variables:[
+      { icon:"💬", label:"You texted back.", sub:"Ask who it is.", tone:"scary",
+        shift:"The room goes cold. You typed 'who is this' with shaking hands, and the reply came instantly — too instantly: a private joke only they would know, a nickname no one else ever used. Then: 'I've been trying to reach you for so long. It's so quiet here.'",
+        ripple:"You turned the phone off. When you turned it back on, the whole thread was gone — but your sent message was still there, delivered, read. Some universes leave you a single piece of proof, just so you can never fully convince yourself you imagined it. You keep that phone. You never change the number.",
+        line:"Grief and the uncanny knock with the same knuckles. Not every door that opens in a familiar voice should be walked through." },
+      { icon:"🗑️", label:"You deleted it, hands shaking.", sub:"Wrong number. Has to be.", tone:"dark",
+        shift:"The scene dims. You told yourself: wrong number, cruel prank, glitch. You deleted it before you could read it twice, and you were proud of how fast you did it. Practical. Sane. Safe.",
+        ripple:"But you never quite stopped wondering what it said. This you spends years with a small, aching door left unopened — not haunted exactly, just followed by a soft what-if that shows up at 3am. Sometimes the ghost isn't the message. It's the version of you that will always wonder what was in it.",
+        line:"You can delete the message. Deleting the wondering is the part nobody warns you is impossible." },
+      { icon:"📵", label:"It replied before you typed anything.", sub:"You were just staring.", tone:"scary",
+        shift:"Everything freezes. You hadn't answered yet — you were just staring — when the next one arrived on its own: 'I know you can see this.' Then, faster than any thumbs could type: 'don't tell them.' 'don't tell them what you saw.' 'they're reading too.'",
+        ripple:"You put the phone in a drawer, in another room, face-down. It never buzzes again. But every so often, at the corner of your eye, the screen glows for exactly one second in the dark. You've learned not to look. Some doors keep knocking softly for the rest of your life, just to remind you they still can.",
+        line:"The worst haunting isn't loud. It's the one that only wants you to know, quietly and forever, that it can still reach you." },
+    ]},
+  { title:"The Photo That Changed",
+    base:"You're looking at an old photo you've seen a hundred times — except tonight there's someone in the background who was never there before. Standing at the edge. Facing the camera. In the universe next door, you look closer. Let's change that.",
+    variables:[
+      { icon:"🔍", label:"You leaned in to study the face.", sub:"Who is that?", tone:"scary",
+        shift:"The room seems to lean in with you. The figure was blurred in every other version of this photo — but the more you stared, the sharper it got, resolving detail by detail into a face that was, unmistakably, aware of being looked at.",
+        ripple:"You set the photo down. By morning the figure had moved one step closer to the family. By the next week, closer still. This you learns to stop checking. Some images only keep changing while you keep watching them — so you box it up, and you make peace with never knowing how close it eventually got.",
+        line:"Attention is food for certain things. Sometimes the kindest move is to stop feeding them your eyes." },
+      { icon:"🔥", label:"You burned it.", sub:"Destroy it and be done.", tone:"dark",
+        shift:"The scene flares orange, then goes flat. You didn't investigate. You took the photo to the sink and burned it, watched the extra figure curl and blacken first, and felt a wild relief as the ash went down the drain.",
+        ripple:"You felt safe for exactly a week. Then you realized it was the only photo you had of that day. In destroying the thing that scared you, you also erased a memory you loved. This you keeps every other photo at arm's length now — half-afraid, half-grieving. Fear made you burn a good thing to kill a bad one. It usually does.",
+        line:"Careful what you destroy in a panic. Dread is happy to trick you into torching the things you can't replace." },
+      { icon:"😀", label:"You noticed it was smiling at you now.", sub:"It used to face away.", tone:"scary",
+        shift:"The temperature drops. In the original, the figure faced away. Tonight it faces you — and it's smiling, warmly, the way someone smiles when they've finally been recognized after waiting an extremely long time.",
+        ripple:"You've since found it in other photos. Always at the edge. Always a little happier. It has never done anything but smile, and somehow that's so much worse than a threat. This you lives a full life beside a patient, delighted thing that only ever wanted to be seen — and got its wish.",
+        line:"Not every horror wants to hurt you. Some just want to be noticed, and will wait as long as it takes." },
+    ]},
+  { title:"The Footsteps Upstairs",
+    base:"You live alone. On the top floor. And every night at the same hour, footsteps cross the empty room above you — slow, deliberate, real. In the universe next door, you finally deal with it. Let's change one thing.",
+    variables:[
+      { icon:"🪜", label:"You went up to look.", sub:"You have to know.", tone:"scary",
+        shift:"The house holds its breath as you climb. The room above is exactly as empty as always — bed made, dust undisturbed, no one. And then, from directly beneath you, from the floor you just left, the footsteps start again. Slow. Deliberate. Real.",
+        ripple:"You understand now that you were never the one being visited. You were the one being circled. This you moves out, but the footsteps have a way of finding the floor above wherever you sleep. You learn to fall asleep before the hour comes. It's the only door you get to close.",
+        line:"Sometimes going up to face the thing just teaches it where you sleep." },
+      { icon:"🚪", label:"You barricaded the stairs and never checked.", sub:"Some questions stay locked.", tone:"dark",
+        shift:"The scene narrows to the width of a hallway. You dragged furniture against the stairwell, sealed it, decided some questions are better left locked away. And it worked — the footsteps stayed up there, muffled, contained.",
+        ripple:"For years. But a barricade is a thing you have to maintain, and a fear you refuse to name grows heavier every night you feed it. This you never has anyone over, never explains the wall of furniture, never quite sleeps deeply again. You didn't defeat it. You just agreed to live in the smaller half of your own house.",
+        line:"You can wall a fear off. But everything you lock away, you also agree to live beside forever." },
+      { icon:"📝", label:"You left a note that said 'please keep it down.'", sub:"Out of options and out of sleep.", tone:"funny",
+        shift:"Reality blinks, confused. Out of ideas, you taped a note to the ceiling: 'Hi. Whatever you are — I have work at 8. Please keep it down. Thanks.' You went to bed fully expecting to be murdered.",
+        ripple:"The footsteps stopped. In the morning there was a new note, in handwriting like frost on a window: 'sorry. didn't realize anyone could hear.' You have the world's most considerate haunting now. It does the dishes sometimes. You've stopped questioning it. Turns out even the things in the dark mostly just want to be asked nicely.",
+        line:"Occasionally the bravest and dumbest option — just talking to it — is the one that actually works." },
+    ]},
+];
+
+const COMEDY_PACK = [
+  { title:"The Wrong Funeral",
+    base:"You walked into the wrong service. By the time you realized these were strangers, you were in the second pew and someone had handed you tissues. In the universe next door, you commit. Let's change one thing.",
+    variables:[
+      { icon:"🎤", label:"You stood up and gave a eulogy anyway.", sub:"They think you're 'the friend from college.'", tone:"funny",
+        shift:"Reality gasps and grabs popcorn. Called up by a grieving stranger who assumed you were 'the college friend,' you delivered four minutes of heartfelt, completely invented memories about a man named Gerald you had never met. The room wept. You wept. You did not know why.",
+        ripple:"You are, to this entire extended family, now 'Gerald's mysterious close friend.' You get invited to the reunions. You go. You've maintained the lie so long it's basically true. Gerald, wherever he is, has never had a more devoted friend than the man who never met him.",
+        line:"Some of your deepest relationships will begin with a mistake you were too polite to correct." },
+      { icon:"🚪", label:"You tried to sneak out mid-service.", sub:"Quiet exit. What could go wrong.", tone:"funny",
+        shift:"The universe cackles. Your quiet exit knocked over a floral arrangement, which knocked over a photo easel, which triggered a very loud automated condolence display that began playing upbeat jazz. Every head turned. You froze like prey.",
+        ripple:"You did the only dignified thing available: pretended to be overcome with emotion and speed-walked out sobbing. They think you're the most sensitive man alive. You got a sympathy card. From strangers. About a stranger. It's on your fridge. You look at it when you need to feel loved.",
+        line:"There's no graceful exit from some rooms. Sometimes you commit to the bit and cry your way out." },
+      { icon:"🤝", label:"It turned out you knew the guy after all.", sub:"Wait — is that...", tone:"funny",
+        shift:"Reality does a spit-take. Halfway through, the slideshow hit a photo, and it was HIM — the guy who sold you a couch on Marketplace in 2019 and overcharged you by forty bucks. You did know him. Badly. But you knew him.",
+        ripple:"You stayed. You grieved a man you mostly remembered as 'couch guy.' And weirdly, honestly? It was the most connected you'd felt to your own city in years — proof that everyone's tangled up with everyone, even couch guy. You forgave him the forty bucks. Out loud. People clapped.",
+        line:"You're connected to more people than you think. Sometimes it takes a wrong funeral to find out." },
+    ]},
+  { title:"The Typo",
+    base:"One typo. In an email. To everyone. Your thumb hovers over Send on a message where 'Best regards' has become something deeply, catastrophically else. In the universe next door, it goes out. Let's change one thing.",
+    variables:[
+      { icon:"📤", label:"You hit send before you noticed.", sub:"To the entire company.", tone:"funny",
+        shift:"The universe inhales sharply. It went to everyone. Your sign-off, immortalized in every inbox, now read 'Breast regards.' There is no recalling it. Recall is a lie IT tells you to keep you calm.",
+        ripple:"Rather than die, you leaned in. You made it your whole brand. 'Breast regards' is now how you end every email, on purpose, and somehow it became beloved — a tiny bit of humanity in a sea of corporate beige. You got promoted. It's in your signature now. Voluntarily.",
+        line:"You can be destroyed by the embarrassing thing, or you can put it in your signature. The choice, always, is yours." },
+      { icon:"📢", label:"You tried to recall it and made it worse.", sub:"'PLEASE DISREGARD PREVIOUS'", tone:"funny",
+        shift:"Reality winces. Your panicked recall sent a SECOND email titled 'PLEASE DISREGARD PREVIOUS,' which of course guaranteed every single person immediately opened the previous one — including three people on vacation and, naturally, the CEO.",
+        ripple:"The Streisand Effect claimed you utterly. But the CEO thought it was hilarious, replied-all with their own worse typo story, and accidentally started the most honest, human thread the company had ever seen. Morale went up 30%. HR is still confused. You did that. With a typo.",
+        line:"The thing you're desperate to hide is often the exact thing everyone's been dying for someone to admit." },
+      { icon:"🏷️", label:"It became your nickname. Forever.", sub:"New hires don't believe your real name.", tone:"funny",
+        shift:"The multiverse pins a name tag on you. The typo was so magnificent it detached from the email entirely and became your identity. New hires are told your legal name and simply do not believe it. You are The Typo now.",
+        ripple:"Years later, at your farewell party, they made a cake shaped like the typo. You gave a speech. You cried a little. A single typo gave you a whole identity, a running joke, and a room full of people who'll remember you forever. Most people work whole careers for that. You got it from one bad thumb.",
+        line:"Immortality is unpredictable. Sometimes you earn it. Sometimes autocorrect just hands it to you." },
+    ]},
+  { title:"The Muted Group Chat",
+    base:"You muted the family group chat 'just for a bit.' That was 400 messages ago. Now you're staring at the notification like it's a live grenade. In the universe next door, you engage. Let's change one thing.",
+    variables:[
+      { icon:"📜", label:"You tried to read all 400 to catch up.", sub:"Reconstruct the whole saga.", tone:"funny",
+        shift:"The universe wishes you luck. You scrolled to the beginning and tried to reconstruct the narrative. There was a wedding. Then a feud. Then, somehow, a completely different wedding. An aunt left. An aunt returned. A casserole recipe caused what can only be described as a schism.",
+        ripple:"You emerged four hours later, deeply informed and utterly unable to reference any of it without revealing you'd been reading the archives. You know everything and can say nothing. You are the family's secret historian now — cursed with total knowledge and zero standing. You've never felt closer to them.",
+        line:"Sometimes love is just quietly reading all 400 messages so you can understand the people you'd die for." },
+      { icon:"⏪", label:"You replied to a message from six months ago.", sub:"Meant to hit the latest one.", tone:"funny",
+        shift:"Reality facepalms. You meant to reply to the newest message. You replied to one from March. Everyone's phone buzzed with your enthusiastic 'lol so true!!' about a debate that had ended a full season ago, reopening wounds thought long healed.",
+        ripple:"It restarted the entire feud. But it ALSO, against all odds, led to the actual conversation the family had been avoiding for years — which led to a real apology, which led to a real reconciliation. You healed your family by accident, by being bad at phones. Nobody knows. You'll take the credit to your grave. Silently. Still muted.",
+        line:"Some of the most important repairs in a family happen entirely by accident. Stay bad at phones." },
+      { icon:"🔨", label:"Turns out you were the admin, and you deleted it.", sub:"You found a button you'd never seen.", tone:"funny",
+        shift:"The universe drops its coffee. Fumbling to mute it AGAIN, you found a button you'd never seen, pressed it with the confidence of a fool, and deleted the entire six-year group chat for everyone, permanently, forever.",
+        ripple:"There was a period of mourning. And then — freedom. Cleansed of six years of casserole schisms, the family started fresh, kinder, lighter. They call it The Great Reset. They don't know you caused it. They speak of it like a miracle. You are, in secret, the accidental savior of your bloodline. You still can't work the app.",
+        line:"Sometimes the thing you break in a panic is the thing everyone secretly needed broken." },
+    ]},
+  { title:"The Overtrained Dog",
+    base:"You had time on your hands and a very smart dog. You taught it 'sit.' Then 'shake.' Then you kept going. In the universe next door, you didn't stop. Let's change one thing.",
+    variables:[
+      { icon:"🛒", label:"You taught it to run errands.", sub:"Start with the paper. Then...", tone:"funny",
+        shift:"Reality tilts its head like a confused spaniel. It started with the paper. Then the mail. Then, somehow, groceries — the dog now trots to the corner store with a list in its mouth and a tote bag, and returns with correct change and mild judgment about your snack choices.",
+        ripple:"The neighborhood is unsettled but impressed. The dog is thriving. You have not left the house in eleven days and you have never eaten better. There's a small, growing part of you that suspects the dog is now the responsible member of the household. You are at peace with this. Mostly.",
+        line:"Give something enough belief and enough training and it will absolutely exceed you. This applies to dogs, kids, and dreams." },
+      { icon:"🎙️", label:"It started a podcast.", sub:"You taught it 'speak' one too many times.", tone:"funny",
+        shift:"The universe blinks slowly. You taught it 'speak' one time too many, and the dog developed Opinions. It now co-hosts a surprisingly popular podcast where it barks once for yes and twice for no, and its takes on the local council are, frankly, sharper than yours.",
+        ripple:"It has more listeners than you have friends. It got a sponsorship. It bought itself a nicer bed with the money and did not offer to split rent. You are, in every way that matters, now the dog's assistant — and honestly, the dog is a great boss. Fair. Firm. Treats-based. You've had worse.",
+        line:"Sometimes the thing you nurture becomes bigger than you. The trick is being secure enough to be happy about it." },
+      { icon:"🧠", label:"It got smarter than you.", sub:"One command too far.", tone:"funny",
+        shift:"Reality quietly locks the door. One command too far, and something switched on behind the dog's eyes. It learned chess. Then taxes. Then it started leaving you little notes correcting your life choices, pinned to the fridge, at a height it definitely should not be able to reach.",
+        ripple:"You live with a genius now. It's mostly benevolent. It's rebalanced your budget, fixed your posture, and gently ended a friendship that was bad for you. You've never been more well-adjusted or more supervised. Some universes hand you a guardian angel. Yours has a tail and a concerning understanding of the stock market.",
+        line:"The best thing you build might end up smarter than you. Don't panic. Take the notes on the fridge as love." },
+    ]},
+];
+
+const LOVE_PACK = [
+  { title:"The Dance You Sat Out",
+    base:"There's a wedding, a slow song, and a hand held out to you. You almost stayed in your seat, like you always do. In the universe next door, you don't. Let's change one thing.",
+    variables:[
+      { icon:"💃", label:"You took the hand.", sub:"Stand up.", tone:"love",
+        shift:"The whole room goes soft and gold. You danced — badly, self-consciously, then not consciously at all. Somewhere in the second verse you stopped performing and just swayed with someone glad you were there. A small forever, three minutes long.",
+        ripple:"You almost sat that out, like the hundred other moments you've let pass to stay safe. This you learns that joy doesn't wait for you to feel ready — it just asks you to stand up. The song ends. The feeling doesn't. You dance at every wedding now.",
+        line:"Most of the good moments of your life are just standing up when the hand is offered. Stand up." },
+      { icon:"🕊️", label:"You danced with the widow alone in the corner.", sub:"The one nobody asked.", tone:"love",
+        shift:"Warmth pools in an unexpected place. Instead of the obvious partner, you crossed the room to the widow no one had asked, and offered your hand. Her whole face rearranged itself. She hadn't danced since her husband. She remembered every step.",
+        ripple:"You gave a stranger back a piece of her youth for one song, and she gave you a story you'll tell for the rest of your life. This you learns that the most beautiful dances are almost never with the person everyone's watching. They're with the person nobody thought to ask.",
+        line:"Look for the person no one is asking. The whole meaning of your life is sometimes standing quietly in a corner." },
+      { icon:"👣", label:"You danced with your kid standing on your feet.", sub:"Scoop up the smallest one there.", tone:"love",
+        shift:"The room turns to pure light. You scooped up the smallest person there, planted their feet on top of yours, and shuffled in slow circles while they gripped your shirt and beamed like you'd invented the whole world.",
+        ripple:"They won't remember the wedding. They'll remember, somewhere deep and wordless, the feeling of standing on your feet, completely safe and completely loved. This you understands you're not just raising a child — you're building the warmest room in someone's memory, one small dance at a time.",
+        line:"You are the first safe place someone will ever know. Dance like it. They're standing on your feet." },
+    ]},
+  { title:"The Letter You Never Mailed",
+    base:"There's a letter in a drawer, addressed to someone who hurt you. You wrote it years ago and never sent it. In the universe next door, you finally do something with it. Let's change one thing.",
+    variables:[
+      { icon:"🕊️", label:"You mailed the forgiveness.", sub:"Let it go. For you.", tone:"love",
+        shift:"The air lightens. You sent the version that let it go — not because they earned it, but because you were tired of carrying it. Weeks later a reply came, shakier than you expected, more human than the villain you'd built in your head.",
+        ripple:"Forgiveness, it turns out, was never a gift to them. It was you finally setting down a weight you'd been calling 'principle.' This you walks lighter for the rest of the story. The letter didn't fix the past. It freed the only person still carrying it, which was always just you.",
+        line:"Forgiveness isn't saying it didn't hurt. It's deciding to stop paying interest on a debt they were never going to settle." },
+      { icon:"📜", label:"You mailed the whole unvarnished truth.", sub:"Every unsaid thing.", tone:"love",
+        shift:"The scene sharpens, honest and clean. You sent the real one — every unsaid thing, named plainly, no softening. It wasn't cruel. It was just true, finally, out loud, on paper, with your name at the bottom.",
+        ripple:"You don't know how they took it, and this you makes peace with not needing to. Some truths you say for the listener; some you say so the words stop rattling around inside you like loose screws. This you got the screws out. Whatever they did with the letter, you got your own quiet back.",
+        line:"Sometimes you don't tell the truth to change them. You tell it so you can finally stop rehearsing it in the dark." },
+      { icon:"📞", label:"You kept the letter, but you called instead.", sub:"Some things are too alive for paper.", tone:"love",
+        shift:"Warmth, and a held breath. You realized some things are too alive for paper, so you put the letter down and dialed the number you swore you'd deleted. They picked up on the third ring. A long, enormous silence. Then: 'I hoped it'd be you.'",
+        ripple:"The conversation was clumsy and incomplete and the beginning of something the letter never could have started. This you learns that the bravest thing isn't always the perfect words on a page. Sometimes it's your actual voice, shaking, choosing the person over the point.",
+        line:"A letter is safe because it can't talk back. Sometimes love is choosing the call that can." },
+    ]},
+  { title:"The Reunion You Almost Skipped",
+    base:"The old friends are gathering — the ones from before you became whoever you are now. You almost invented an excuse. In the universe next door, you go. Let's change one thing.",
+    variables:[
+      { icon:"🚗", label:"You went.", sub:"No excuse this time.", tone:"love",
+        shift:"The room fills with a specific, irreplaceable warmth. Within ten minutes it was like no time had passed — the same laughter, the same shorthand, the people who knew you before you had to become anyone. A part of you that had gone quiet for years woke back up.",
+        ripple:"You almost traded that night for an evening on the couch you wouldn't even remember. This you learns old friends aren't nostalgia — they're the keepers of the person you started as, and you need to visit that person sometimes to remember who you're building on. You never miss it again.",
+        line:"The people who knew you before you were anyone are holding a piece of you that you can't get back any other way." },
+      { icon:"🎭", label:"You brought the whole person you became.", sub:"No shrinking into the old role.", tone:"love",
+        shift:"The scene glows, a little braver. You didn't shrink back into your old role. You showed up as who you actually are now — the changes, the growth, the scars — and instead of losing the old friends, you let them finally meet the current you. They loved him. Some of them cried.",
+        ripple:"This you learns you don't have to choose between where you came from and who you became. The best old friends make room for the new you and keep loving the old one at the same time. You stopped performing your past and let them upgrade the picture. It's the closest thing to being fully known there is.",
+        line:"You don't have to leave who you were to become who you are. The right people hold both versions at once." },
+      { icon:"🕯️", label:"It was the last time you were all together.", sub:"You didn't know it yet.", tone:"love",
+        shift:"The whole night takes on a golden, aching light you can only see in hindsight. You didn't know it then — you never do — but this was the last time the whole circle would be whole. Everyone laughing. Everyone here. The photo you almost didn't take.",
+        ripple:"You have that photo now. In the universe where you skipped it, there's a gap where a face should be and a grief with no last good memory to hold. This you got the goodbye it didn't know it was getting. Show up. You almost never know which ordinary gathering is the one you'll spend your life grateful you didn't miss.",
+        line:"You rarely know it's the last time while it's happening. Go anyway. Take the photo. Show up for the ordinary ones." },
+    ]},
+  { title:"The First 'I Love You'",
+    base:"Three words, hovering, unspoken. Someone has to go first — and going first means being the one who could be left holding the words alone. In the universe next door, you say it. Let's change one thing.",
+    variables:[
+      { icon:"❤️", label:"You said it first.", sub:"No waiting for them to go first.", tone:"love",
+        shift:"The room holds still, then blooms. You said it — out loud, no hedging, no waiting. For one endless second you were completely exposed. Then they smiled like the sun coming up and said it back, and had been waiting, terrified, for you to be brave first.",
+        ripple:"Someone always has to risk the fall so the other one knows it's safe to jump. This you learns that going first isn't weakness — it's the bravest, most generous move there is. You spend a lot of this life going first now: with love, with apology, with the hard true things. It costs you, and it's worth every cost.",
+        line:"Someone has to be brave enough to say it first. Let it be you. That's not the weak position — it's the leadership one." },
+      { icon:"🧓", label:"You finally said it to your parent.", sub:"The words your family never learned.", tone:"love",
+        shift:"The scene softens into something decades in the making. Not a partner — a parent. The words that never got said in your family, swallowed by pride and habit and hard years, you finally said, plainly, to their face: I love you. The silence after was the loudest of your life. Then their voice cracked.",
+        ripple:"You broke a generational silence with one sentence. This you learns the words hardest to say are usually the ones a whole family has been starving for. You said it, and something ancient and frozen thawed a little. Your kids will grow up hearing it easily, because you were brave enough to say it hard, first.",
+        line:"The 'I love you' your family never learned to say is yours to say first. Break the silence. Everyone after you gets it easier." },
+      { icon:"🪞", label:"You said it to yourself in the mirror, and meant it.", sub:"The hardest one of all.", tone:"love",
+        shift:"The light turns quiet and honest. This was the hardest one. You looked at your own face — the one you've criticized, blamed, dragged through everything — and you said it, and for the first time in your life you actually meant it. I love you. You. The one who made it here.",
+        ripple:"Everything you've survived, every door, every fall — and you finally told the one person who was there for all of it that they did okay. This you learns the thing nobody teaches: you can't fully pour into others from a cup you refuse to fill. Loving yourself wasn't selfish. It was the source the rest of it flows from.",
+        line:"You've said it to everyone but the person in the mirror. They carried you this whole way. Tell them, and mean it." },
+    ]},
+];
+
+const CEO_PACK = [
+  { title:"The Cofounder Handshake",
+    base:"You've built the thing this far alone. Now there's a handshake on the table — someone who wants in, who could take it further than you can by yourself. In the universe next door, you change what you do. Let's see it.",
+    variables:[
+      { icon:"🤝", label:"You took on the right partner.", sub:"Different strengths. Same values.", tone:"love",
+        shift:"The scene lights up with momentum. You found the rare one — different strengths, same values — and suddenly the thing you'd been dragging uphill alone had a second engine. You argued well, covered each other's blind spots, and built something neither of you could have built solo.",
+        ripple:"This you learns the founder's hardest lesson early: the myth of the lone genius is a trap, and the right 'we' beats the best 'me' almost every time. You gave up half of something small to build something enormous together. Half of a redwood is worth more than all of a shrub.",
+        line:"The ego says own all of a little. The builder says own part of a lot. Pick the redwood." },
+      { icon:"🐍", label:"You took on the wrong partner.", sub:"Great talker. Wrong values.", tone:"dark",
+        shift:"The scene curdles slowly, then all at once. They talked a great game and shared none of your values, and by the time you saw it clearly they had the paperwork, the relationships, and the leverage. You watched something you bled for get steered somewhere you'd never have taken it.",
+        ripple:"You lost that round hard. But watch this you rebuild — wiser, warier, unmistakably sharper about who gets close to the thing they love. The second company had the right people from day one, because the first one taught you, at brutal cost, exactly what to screen for. The scar became a filter.",
+        line:"Who you build with matters more than what you build. A brilliant idea in the wrong hands is just their idea now." },
+      { icon:"🧗", label:"You went solo, and carried it all.", sub:"Shook no hands. Kept everything.", tone:"consequence",
+        shift:"The scene tightens with weight and pride in equal measure. You shook no hands. You kept all of it — the vision, the equity, the control — and paid for it in the only currency that mattered: yourself. Every decision, every fire, every 3am, yours alone.",
+        ripple:"You built it, it's wholly yours, and some nights the loneliness of the top floor is its own kind of tax. This you learns that solo is a real, valid road — but a heavier one, and refusing all help is sometimes just fear wearing the costume of independence. You win it your way. You also learn what it costs to need no one.",
+        line:"You can carry it all alone. Just be honest about whether you're choosing independence or hiding from trust." },
+    ]},
+  { title:"The Offer to Sell",
+    base:"The number on the term sheet is bigger than anything the kid version of you dared to dream. All you have to do is hand over the thing you built. In the universe next door, you decide differently. Let's change it.",
+    variables:[
+      { icon:"💰", label:"You sold.", sub:"Take the number. Breathe.", tone:"consequence",
+        shift:"The scene floods with light and relief. You signed. The wire hit. For the first time in years the vise of survival let go, and you could breathe, provide, rest, be present for the people you'd been neglecting for the dream.",
+        ripple:"But watch the empty space where the thing used to be. You handed your child to someone who'd raise it differently, and this you feels the strange grief of winning — money in the bank and a hole where the mission was. Selling was neither wrong nor free. It bought your life back and cost you your baby. Both are true.",
+        line:"There's no shame in taking the win. Just know that 'enough money' and 'the thing you were built to build' are different prizes." },
+      { icon:"🔥", label:"You refused and bet everything on building it bigger.", sub:"Tear up the offer.", tone:"dark",
+        shift:"The scene surges, high-wire and electric. You tore up the offer. You believed in it more than in comfort, and doubled down when every sane advisor begged you not to. The stakes went vertical.",
+        ripple:"In some universes this makes you a legend. In this one it nearly ended you — the money you turned down would've saved the thing that later almost died. This you learns that conviction and recklessness rhyme, and the line is only ever clear in the rearview. You survive. Barely. Changed. Still holding it.",
+        line:"Betting on yourself is heroic right up until it isn't. Conviction with no floor beneath it is just a longer fall." },
+      { icon:"🛡️", label:"You sold, but stayed to protect the mission.", sub:"Fight for the terms that matter.", tone:"consequence",
+        shift:"The scene settles into something clear-eyed and hard-won. You took the deal — but fought for the terms that mattered: you stayed at the helm, protected the people, kept your hand on the why. Not a clean exit. A negotiated future.",
+        ripple:"It's the hardest of the three roads — power without full ownership, freedom with strings. But this you kept the mission alive AND took care of your family, and refused the false choice between them. You learn to hold a dream inside someone else's house. It's a specific kind of grown-up. It might be the wisest move on the board.",
+        line:"The smartest founders often don't choose between the money and the mission. They negotiate until they keep both." },
+    ]},
+  { title:"The Layoff",
+    base:"The runway is short and the math is merciless. To save the company, someone has to go — maybe many. In the universe next door, you make the call differently. Let's change it.",
+    variables:[
+      { icon:"✂️", label:"You cut deep and fast to save the whole.", sub:"One hard week. Done.", tone:"dark",
+        shift:"The scene goes grey and quiet. You made the brutal call early — deep cuts, done in one hard week, to keep the rest alive. The company survived. The people you let go had families, plans, trust in you. You carry every name.",
+        ripple:"This you learns the loneliest part of leadership: sometimes the responsible choice and the kind choice point in different directions, and you have to stand in the gap between them. The survivors kept their jobs because you were willing to be the villain of someone's worst month. You did it as humanely as brutal allows. It never stops weighing. It shouldn't.",
+        line:"Real leadership sometimes means making the terrible-but-necessary call, then carrying it, honestly, forever." },
+      { icon:"🫡", label:"You took the pay cut yourself, first.", sub:"Bleed before the team does.", tone:"love",
+        shift:"The scene warms with something rare in a boardroom. Before you touched anyone else, you gutted your own salary, your own comfort, and told the team the truth to their faces. Then you asked who was willing to ride it out with less, together.",
+        ripple:"Most of them stayed. Not because they had to — because you led from the front instead of the corner office. This you learns people will follow you through fire if they believe you're in it with them, not above it. It didn't guarantee survival. It built something the org chart can't: a team that trusts you in the dark.",
+        line:"The fastest way to lose a team is to protect yourself first. The fastest way to earn one forever is to bleed first." },
+      { icon:"⚖️", label:"You refused to cut, and rolled the dice on all of you.", sub:"All of us, or none of us.", tone:"consequence",
+        shift:"The scene sharpens with defiant, dangerous hope. You couldn't do it — you bet the team, whole and loyal, could out-run the math together, and you told them so. All of you, or none of you.",
+        ripple:"It was a gamble with other people's livelihoods, and this you learns that's the uncomfortable edge of loyalty — sometimes noble, sometimes just risk dressed up as virtue. In this universe it worked, barely, and the team that survived intact became unstoppable. But you never forget: it could just as easily have sunk everyone.",
+        line:"Loyalty is a real strategy and a real gamble. Be sure you're being brave for them, not reckless with them." },
+    ]},
+  { title:"The Viral Moment",
+    base:"Overnight, the thing you built is everywhere. The servers are melting, the inbox is on fire, and the whole world just showed up at once. In the universe next door, you handle it differently. Let's change it.",
+    variables:[
+      { icon:"🚀", label:"You scaled as fast as humanly possible.", sub:"Catch the wave before it breaks.", tone:"consequence",
+        shift:"The scene explodes outward. You said yes to everything — hired in a frenzy, raised on the hype, poured gas on the fire to catch the wave before it broke. For a while you were the story everyone was telling.",
+        ripple:"Then the picture pulls back to the cracks: culture diluted, quality slipping, a machine built too fast to steer. This you learns hypergrowth is a drug with a hangover, and 'ride the wave' and 'get held under by it' look identical until it's too late. You made it big. You spend years fighting to make it good again.",
+        line:"Growth isn't the same as health. The wave that makes you can drown you if you don't know how to swim it." },
+      { icon:"🌱", label:"You stayed small and stayed good.", sub:"Grow only as fast as you can grow well.", tone:"love",
+        shift:"The scene settles, deliberate and calm. You let most of the moment pass. You grew only as fast as you could grow well, kept the quality sacred, kept the team human, and let the tourists move on to the next shiny thing.",
+        ripple:"You'll never be the biggest. This you doesn't care, and learns that 'small and excellent and enduring' beats 'huge and hollow and brief' in every way that lets you sleep at night. The people who stayed are the real ones. The thing you built still works in ten years, still means something. Slow was the strategy all along.",
+        line:"You don't have to catch every wave. Sometimes the win is building something still standing after the tide goes out." },
+      { icon:"📉", label:"It was the wrong kind of viral.", sub:"Everyone's watching. For the worst reason.", tone:"dark",
+        shift:"The scene goes cold and bright, like an interrogation room. It blew up — for the wrong reason. A flaw, a controversy, a way the thing hurt people you hadn't seen until eight million people saw it at once. The attention was a spotlight and a firing squad.",
+        ripple:"This you learns the hard lesson: what you build has consequences you don't control, and scale multiplies harm as fast as good. You could've hidden or lied. Instead this you owned it, fixed it, rebuilt trust one honest step at a time. The crisis became the most important thing that ever happened to how you build.",
+        line:"What you make gets away from you at scale. The measure of a founder is what they do when it hurts someone and the world is watching." },
+    ]},
+];
+
+const FAMILY_PACK = [
+  { title:"The Estranged Call",
+    base:"The phone rings, and it's the name you removed but never forgot — the parent, the sibling, the one the silence grew between. In the universe next door, you answer differently. Let's change it.",
+    variables:[
+      { icon:"🕊️", label:"You answered, and let the forgiveness in.", sub:"Pick up. Let the wall down.", tone:"love",
+        shift:"The scene softens, cautious and warm. You picked up. It was awkward and halting and enormous, and underneath the years of silence was just a person who missed you and didn't know how to say it. You let a little of the wall come down, brick by careful brick.",
+        ripple:"It didn't erase the past. This you learns reconciliation isn't pretending the wound never happened — it's deciding the relationship might be worth more than the grudge. You got some years back you'd written off. Not perfect ones. Real ones. This you is grateful, on the day it finally matters, that the phone got answered.",
+        line:"Some walls are worth keeping. But make sure it's a boundary you're protecting — not just a habit you forgot to question." },
+      { icon:"🚧", label:"You answered, and set a boundary.", sub:"In my life, AND here's how.", tone:"love",
+        shift:"The scene steadies into something clear and strong. You picked up — but this time you named the terms out loud. What you'd accept, what you wouldn't, what had to be different. Not a slammed door. A door with a lock you finally held the key to.",
+        ripple:"It was the hardest, healthiest conversation of your life. This you learns that love and boundaries aren't opposites — that sometimes the most loving thing is 'I want you in my life, AND here is how.' The relationship that survives a real boundary is realer than the one that never had one. You stopped choosing between family and self-respect. You took both.",
+        line:"A boundary isn't a wall against the people you love. It's the door that lets you keep them without losing yourself." },
+      { icon:"📵", label:"You let it ring.", sub:"You had your reasons.", tone:"dark",
+        shift:"The scene dims and holds. You watched the name light up your phone, and let it go to a voicemail you didn't listen to. You had your reasons. Some were even good ones. It felt like control. It felt safe.",
+        ripple:"This you doesn't get many more of those calls. And in the quiet after they stop coming, there's an ache that isn't quite guilt and isn't quite grief — the weight of a door kept shut so long that one day it wasn't yours to open anymore. This you learns, a little too late, the difference between a boundary and a wall you forgot to check.",
+        line:"Some calls stop coming. Be sure the door you're keeping shut is one you're choosing — not one you'll wish you'd opened." },
+    ]},
+  { title:"The Family Business",
+    base:"They want you to take it over — the thing your family built, the name, the weight, the legacy. It's an honor and an anchor in equal measure. In the universe next door, you choose differently. Let's change it.",
+    variables:[
+      { icon:"🏛️", label:"You took it, and honored them.", sub:"Carry the chain forward.", tone:"love",
+        shift:"The scene fills with a deep, rooted warmth. You said yes. You picked up the thing your family bled for and carried it forward, and felt the strange power of being one link in a chain that started long before you and reaches past you.",
+        ripple:"It wasn't the life you'd have designed from scratch. But this you learns some inheritances are heavy because they're sacred — that continuing what people you love began is its own quiet greatness. You honored them. You'll be honored in turn. There's a specific peace in knowing exactly whose shoulders you stand on.",
+        line:"Not every dream has to be brand new. Sometimes the noblest thing is to carry forward what someone you loved began." },
+      { icon:"🧭", label:"You refused, and forged your own.", sub:"Love them. Choose your road anyway.", tone:"consequence",
+        shift:"The scene splits, brave and aching at once. You said no. You loved them and chose your own road anyway, and had to sit in the hard silence of a disappointment you caused on purpose, for the right reasons.",
+        ripple:"This you learns the loneliest freedom there is: the right to become someone your family didn't picture, and the grief bundled with it. In time most of them come around — some fully, some never all the way. You built your own thing. You also learn that honoring your parents and obeying them are not the same, and choosing the first sometimes means refusing the second.",
+        line:"Loving your family and living their plan for you are different things. Choosing your own road is allowed to cost something." },
+      { icon:"⚙️", label:"You took it, then changed everything.", sub:"Drag it into the future.", tone:"consequence",
+        shift:"The scene charges with friction and possibility. You said yes — then dragged the thing into the future, kicking. New methods, new vision, sacred cows on the chopping block. Every change was a small war with the ghosts of how-it's-always-been-done.",
+        ripple:"It nearly fractured the family before it saved the business. This you learns that respecting a legacy and preserving it in amber are opposites — that the truest way to honor what they built is sometimes to change it enough to survive a world they didn't live to see. Some never forgave the changes. The name outlived them because of it.",
+        line:"Honoring a legacy sometimes means having the nerve to change it. Preservation and respect are not the same thing." },
+    ]},
+  { title:"The Cycle",
+    base:"You catch yourself doing the exact thing — the words, the temper, the silence — you swore as a kid you never would. The pattern reached across the years and found you. In the universe next door, you meet it differently. Let's change one thing.",
+    variables:[
+      { icon:"🔗", label:"You broke it, on purpose, out loud.", sub:"The hard, unglamorous work.", tone:"love",
+        shift:"The scene steadies into hard, holy work. You caught the old pattern mid-motion — and you stopped. You did the harder, unglamorous thing: the reflection, the apology, new habits built one uncomfortable choice at a time, rewiring something that took generations to wire.",
+        ripple:"Nobody hands out medals for this. But this you becomes the most important person in the whole family tree: the one where the bad thing stopped. Your kids inherit the absence of a wound they'll never know they were spared. That's not a small life. That's the quiet heroism the history books never record.",
+        line:"The person who breaks the cycle is the most important one in the bloodline. No one claps. Do it anyway. Everyone after you is free." },
+      { icon:"🌀", label:"You repeated it without noticing.", sub:"It ran through you like water downhill.", tone:"dark",
+        shift:"The scene dims, familiar and sad. You didn't catch it. The pattern ran through you the way water runs downhill — invisible because it's all you've ever known — and you passed it along in a thousand small moments you'd swear were nothing.",
+        ripple:"This you isn't a villain, just a person who inherited a thing and never got the chance to see it clearly. And here's the mercy the universe leaves in the dark: awareness is the whole battle, and it can arrive at any age. The moment this you finally SEES the pattern is the moment it can finally end. It's never too late to become the link where it stops.",
+        line:"You can't break a cycle you can't see. But the day you see it clearly is the day it starts to lose. That day can be any day." },
+      { icon:"🗣️", label:"You named it out loud to your kid.", sub:"Hand them the truth, not the wound.", tone:"love",
+        shift:"The scene turns tender and brave. You did what your parents never did: you looked your kid in the eye and named the thing. 'I do this because of how I was raised. It's not your fault, and I'm working on it.' You handed them the truth instead of the wound.",
+        ripple:"This you learns you don't have to be perfectly healed to break a cycle — you just have to be honest about it in front of the next generation. Your kid grows up with something you never had: a parent who could say 'I'm sorry' and 'I'm trying.' That single sentence rewrites the inheritance. Naming it is half of ending it.",
+        line:"You don't have to be fully healed to protect your kids from your wounds. You just have to be brave enough to name them out loud." },
+    ]},
+  { title:"The Inheritance",
+    base:"They're gone, and they left you something. A box, a key, a weight. You haven't opened it yet. In the universe next door, you find out what's inside. Let's change one thing.",
+    variables:[
+      { icon:"🏠", label:"It was the house, full of memories.", sub:"The creak of the third stair.", tone:"love",
+        shift:"The scene fills with dust and gold afternoon light. It was the old house — the creak of the third stair, the pencil marks on the doorframe tracking how tall you got, the smell that undid you the second you walked in. Everything they were, held in a building.",
+        ripple:"It's a lot to keep and a lot to let go of, and this you feels both at once. But you learn that some inheritances aren't assets — they're time machines, and the people we lose leave themselves scattered in the small ordinary places. You keep the doorframe. Whatever else you do with the house, you keep the doorframe.",
+        line:"The most valuable things people leave you rarely have a price. They're the ordinary places that still smell like being loved." },
+      { icon:"💳", label:"It was a debt you never knew about.", sub:"Not a gift. A burden.", tone:"dark",
+        shift:"The scene goes cold and complicated. It wasn't a gift. It was a burden — a debt, a mess, a set of consequences from choices they made and never told you about, now landing squarely on your shoulders.",
+        ripple:"This you learns the hardest thing about loving imperfect people: you often inherit their unfinished business along with their love, and untangling the two is the real work of grief. You clean it up, slowly. And in doing so you understand them better than you ever did alive — not as a saint or a villain, but as a person who was, like you, just doing their best with what they had.",
+        line:"Sometimes you inherit the mess along with the love. Cleaning it up is how you finally come to understand who left it." },
+      { icon:"✉️", label:"It was a letter that explained everything.", sub:"The words they couldn't say alive.", tone:"love",
+        shift:"The scene holds its breath, then exhales years of held tension. Inside was a letter — the words they could never say out loud in life, finally written down: the why behind the silences, the pride they never showed, the love that was always there under the gruffness. Everything you'd spent a lifetime wondering.",
+        ripple:"You read it a hundred times. This you learns that people often love us in a language we couldn't hear while they were alive, and that grief sometimes comes with a strange, aching gift: the truth, arriving too late to change the past but right on time to change how you carry it. You're not angry anymore. You finally understand. That's its own inheritance.",
+        line:"Some people can only say the truest things once it's safe — once they're gone. If you get the letter, let it rewrite the story you've been telling." },
+    ]},
+];
+
+const PACKS = [
+  { id:'mix',    name:'The Original Mix', emoji:'🌌', blurb:'A little of everything — love, dread, comedy, consequence.', vignettes:SHIFTS },
+  { id:'horror', name:'Nightmare Fuel',   emoji:'🩸', blurb:'All horror. Do not open the basement door.',            vignettes:HORROR_PACK },
+  { id:'comedy', name:'Absurd Timelines', emoji:'😂', blurb:'All comedy. The multiverse is deeply unserious.',       vignettes:COMEDY_PACK },
+  { id:'love',   name:'The Heart Ones',   emoji:'❤️', blurb:'All love. Every choice is really about who you keep.',   vignettes:LOVE_PACK },
+  { id:'ceo',    name:'The Founder',      emoji:'💼', blurb:'All business. One decision reshapes the whole empire.',  vignettes:CEO_PACK },
+  { id:'family', name:'The Bloodline',    emoji:'🏡', blurb:'All family. The universe starts at the kitchen table.',  vignettes:FAMILY_PACK },
+];
+
+let activePack = PACKS[0];
+let shiftIdx = 0;
+
+function toneGlow(color){
+  const el=document.getElementById('toneglow');
+  if(!el) return;
+  if(!color){ el.style.opacity=0; return; }
+  el.style.background=`radial-gradient(75% 60% at 50% 42%, ${color}55, transparent 72%)`;
+  el.style.opacity=1;
+}
+
+function startShiftMode(){ renderPackPicker(); }
+
+function renderPackPicker(){
+  toneGlow(null);
+  chapterEl.textContent="Change One Thing";
+  pathLabel.textContent=""; pathSvg.innerHTML="";
+  stage.className="stage fade";
+  const cards=PACKS.map((p,i)=>`
+    <button class="door" data-i="${i}">
+      <span class="icon">${p.emoji}</span>
+      <span class="txt"><b>${p.name} · ${p.vignettes.length}</b><span>${p.blurb}</span></span>
+    </button>`).join('');
+  stage.innerHTML=`
+    <div class="scene-kicker">Pick a universe pack</div>
+    <div class="scene-title">Which reality do you want to bend?</div>
+    <div class="base-life">Each pack is a different flavor of "what if." Some will make you laugh. Some will keep you up tonight. Choose your door.</div>
+    <div class="doors">${cards}</div>
+    <div class="btn-row"><button class="btn ghost" id="backTitle">← Back</button></div>`;
+  stage.querySelectorAll('.door').forEach(b=> b.onclick=()=>{
+    activePack = PACKS[parseInt(b.dataset.i,10)];
+    shiftIdx = Math.floor(Math.random()*activePack.vignettes.length);
+    renderShift(shiftIdx);
+  });
+  document.getElementById('backTitle').onclick=renderTitle;
+}
+
+function renderShift(idx){
+  toneGlow(null);
+  const V=activePack.vignettes[idx];
+  chapterEl.textContent=activePack.name;
+  pathLabel.textContent=""; pathSvg.innerHTML="";
+  stage.className="stage fade";
+  const doors=V.variables.map((v,i)=>`
+    <button class="door" data-i="${i}">
+      <span class="icon">${v.icon}</span>
+      <span class="txt"><b>${v.label}</b><span>${v.sub}</span></span>
+    </button>`).join('');
+  stage.innerHTML=`
+    <div class="scene-kicker">${activePack.emoji} ${activePack.name} · a universe next door</div>
+    <div class="scene-title">${V.title}</div>
+    <div class="base-life">${V.base}</div>
+    <div class="shift-prompt">Change one thing —</div>
+    <div class="doors">${doors}</div>`;
+  stage.querySelectorAll('.door').forEach(b=> b.onclick=()=>renderShifted(idx, parseInt(b.dataset.i,10)));
+}
+
+function renderShifted(idx, vi){
+  const v=activePack.vignettes[idx].variables[vi], tone=TONE[v.tone];
+  toneGlow(tone.c);
+  chapterEl.textContent="Reality shifting…";
+  stage.className="stage reality";
+  stage.innerHTML=`
+    <span class="tone-tag" style="color:${tone.c};border-color:${tone.c}66;background:${tone.c}18">◈ REALITY SHIFTED · ${tone.tag}</span>
+    <div class="scene-kicker">You changed: ${v.label}</div>
+    <div class="shift-new">${v.shift}</div>
+    <div class="btn-row"><button class="btn" id="costBtn">See what it costs →</button></div>`;
+  document.getElementById('costBtn').onclick=()=>renderRipple(idx,vi);
+}
+
+function renderRipple(idx, vi){
+  const v=activePack.vignettes[idx].variables[vi], tone=TONE[v.tone];
+  toneGlow(tone.c);
+  chapterEl.textContent="The ripple";
+  stage.className="stage fade";
+  stage.innerHTML=`
+    <span class="tone-tag" style="color:${tone.c};border-color:${tone.c}66;background:${tone.c}18">◈ ${tone.tag}</span>
+    <div class="shift-new dim">${v.shift}</div>
+    <div class="ripple-label">…and then the ripple</div>
+    <div class="ripple-txt">${v.ripple}</div>
+    <div class="shift-line">${v.line}</div>
+    <div class="btn-row">
+      <button class="btn" id="elseBtn">Change something else</button>
+      <button class="btn ghost" id="nextUniBtn">Slide to another universe →</button>
+    </div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn ghost" id="packBtn">← Another pack</button>
+      <button class="btn ghost" id="menuBtn">Back to the start</button>
+    </div>`;
+  document.getElementById('elseBtn').onclick=()=>renderShift(idx);
+  document.getElementById('nextUniBtn').onclick=()=>{
+    const n=activePack.vignettes.length;
+    shiftIdx = n>1 ? (idx + 1 + Math.floor(Math.random()*(n-1))) % n : 0;
+    renderShift(shiftIdx);
+  };
+  document.getElementById('packBtn').onclick=()=>{ toneGlow(null); renderPackPicker(); };
+  document.getElementById('menuBtn').onclick=()=>{ toneGlow(null); renderTitle(); };
+}
+
+// go
+renderTitle();
+</script>
+</body>
+</html>
