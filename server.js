@@ -199,6 +199,9 @@ function serveFile(res, file){
 
 const server = http.createServer((req, res)=>{
   if(req.method==='GET' && (req.url==='/' || req.url==='')){
+    return serveFile(res, path.join(PUBLIC_DIR, 'landing.html'));
+  }
+  if(req.method==='GET' && (req.url==='/play' || req.url==='/play/' || req.url.startsWith('/play?'))){
     return serveFile(res, path.join(PUBLIC_DIR, 'parallels.html'));
   }
   if(req.method==='GET' && req.url==='/favicon.ico'){ res.writeHead(204); return res.end(); }

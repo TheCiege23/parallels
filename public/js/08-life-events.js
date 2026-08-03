@@ -1,0 +1,86 @@
+/* PARALLELS — Event -> personalized scene builder
+   Part of a modular, single-responsibility build. Load order matters: this is file 08/24. Classic script (shared global scope). */
+function makeEventScene(m, p, year, era){
+  const d=m.data||{}, emp=esc(d.employer)||'that job', pos=esc(d.position)||'', sch=esc(d.name)||'school', place=esc(d.place)||'somewhere new';
+  if(m.type==='job') return { kicker:'A real turning point from your life', title:`${year}. You took the job at ${emp}.`,
+    body:`The world was ${era}. ${pos?('You came in as '+pos+'. '):''}It was a real door — steady ground, a paycheck, a version of the future. But every door you walk through is one you also walk past.`,
+    choices:[
+      {icon:'🧗',head:'You stayed and climbed.',sub:'Build a career here, brick by brick.',tone:'consequence',
+        outcome:`You dug in at ${emp} and made it your ladder — years of showing up, getting good, getting known.`,
+        ripple:`It gave you stability and a title, and quietly closed the door on the riskier dream you kept in a drawer. This you is secure, respected, and every so often wonders about the drawer.`,
+        line:`A steady climb is a real accomplishment. Just keep checking the ladder is against the right wall.`},
+      {icon:'🚪',head:'You left it to build your own thing.',sub:'Walk out and bet on yourself.',tone:'dark',
+        outcome:`You didn't stay at ${emp} long. You left to build something of your own, and traded the safety for the fire.`,
+        ripple:`It was terrifying and some of it broke. But this you learned early what it feels like to bet on yourself and survive the fall — a nerve that pays out for the rest of your life.`,
+        line:`Leaving a good-enough thing for a truer one is one of the scariest, most alive choices there is.`},
+      {icon:'🚀',head:'You used it as a launchpad.',sub:'Learn everything, then leap.',tone:'love',
+        outcome:`You treated ${emp} as a school, not a home — soaked up every skill and relationship, then leapt when you were ready.`,
+        ripple:`This you got the best of both: safety while you needed it, courage when it counted. The people you met there stayed in your corner for decades.`,
+        line:`The smartest move is often neither staying nor fleeing — it's using the room you're in as a launchpad.`},
+    ]};
+  if(m.type==='school') return { kicker:'A real turning point from your life', title:`${year}. You started at ${sch}.`,
+    body:`It was ${era}. A fresh start, a blank page, a room full of strangers who'd become part of your story. Who you decided to be here echoed for years.`,
+    choices:[
+      {icon:'🔥',head:'You threw yourself all the way in.',sub:'Every class, every club, all of it.',tone:'love',
+        outcome:`You went all in at ${sch} — the work, the people, the late nights that felt like they mattered.`,
+        ripple:`It cost you sleep and built you a foundation and a circle you'd lean on for life. This you found out early what full commitment feels like.`,
+        line:`Showing up all the way, early, builds a habit most people never do.`},
+      {icon:'🎯',head:'You focused only on your thing.',sub:'Ignore the rest. Chase what lights you up.',tone:'consequence',
+        outcome:`You didn't chase the whole experience at ${sch}. You zeroed in on the one thing that lit you up and let the rest blur.`,
+        ripple:`You got very good, very fast — and maybe missed some of the growing-up that happens in the blur. This you is sharp and a little self-taught in the ways that count.`,
+        line:`Focus is a superpower with a small tax: the doors you never looked down.`},
+      {icon:'🎈',head:'You spent more time living than studying.',sub:'The real lessons were outside class.',tone:'funny',
+        outcome:`Let's be honest — ${sch} was more backdrop than focus. The real lessons came from the people, the trouble, the life.`,
+        ripple:`Your transcript is unremarkable and your stories are legendary. This you learned things no syllabus lists, and wouldn't trade a single one.`,
+        line:`Some of the most important things you'll ever learn are not on the test.`},
+    ]};
+  if(m.type==='move') return { kicker:'A real turning point from your life', title:`${year}. You moved to ${place}.`,
+    body:`The world was ${era}. A new city is a soft reset — new streets, new strangers, a chance to be whoever you decide before anyone knows the old you.`,
+    choices:[
+      {icon:'🌱',head:'You planted roots fast.',sub:'Make it home. Build a life here.',tone:'love',
+        outcome:`You threw yourself into ${place} — found your people, your spots, your rhythm. It stopped being new and started being home.`,
+        ripple:`You built something rooted. The cost was the road not taken; the reward was belonging, which this you never takes for granted.`,
+        line:`Belonging isn't found. It's built, on purpose, one ordinary week at a time.`},
+      {icon:'🎒',head:'You kept it temporary.',sub:'One foot out the door.',tone:'dark',
+        outcome:`You never fully unpacked in ${place}. It was a stop, not a destination, and you kept your options open.`,
+        ripple:`Freedom has a quiet cost: this you got everywhere and belonged nowhere for a while, until you learned that a life kept temporary can forget to start.`,
+        line:`Keeping every door open sometimes means never really walking through one.`},
+      {icon:'✨',head:'You reinvented yourself completely.',sub:'New city, new you.',tone:'consequence',
+        outcome:`Nobody in ${place} knew the old you, so you became someone new — bolder, freer, or finally yourself.`,
+        ripple:`Reinvention is a gift a new place gives you. This you learned identity is more of a choice than we're told, and carried that power everywhere after.`,
+        line:`A new place is permission to become who you've been afraid to be.`},
+    ]};
+  if(m.type==='relationship') return { kicker:'A real turning point from your life', title:`${year}. Everything changed with someone who mattered.`,
+    body:`The world was ${era}, and yours was suddenly about one person. These are the forks that quietly decide the shape of a whole life.`,
+    choices:[
+      {icon:'🔓',head:'You let them all the way in.',sub:'Risk being fully known.',tone:'love',
+        outcome:`You dropped the armor and let this person see the real you — the whole, unedited thing.`,
+        ripple:`It didn't go perfectly; that never does. But this you learned that being truly known is the only cure for the loneliness, and chose it again and again.`,
+        line:`Being fully known is the scariest thing you'll risk and the only thing that ends the loneliness.`},
+      {icon:'🛡️',head:'You held part of yourself back.',sub:'Keep a wall up, just in case.',tone:'dark',
+        outcome:`You kept a wall up, just enough to stay safe. Present, but not all the way there.`,
+        ripple:`The wall kept the pain out and the love out in equal measure. This you learned that the armor built to survive was the thing keeping you from living.`,
+        line:`The walls that keep the hurt out keep the love out too. Eventually they cost more than they save.`},
+      {icon:'🌍',head:'You put your own becoming first.',sub:'Grow into yourself before a "we."',tone:'love',
+        outcome:`You chose, for a while, to become fully yourself before tying your life to anyone else's.`,
+        ripple:`It wasn't coldness — it was wisdom. This you showed up to love later, whole instead of half-formed, and learned there's no wrong order to any of it.`,
+        line:`You can't fully share a self you haven't finished meeting. Sometimes the loving move is to grow first.`},
+    ]};
+  return { kicker:'A real turning point from your life', title:`${year}. A moment that mattered.`,
+    body:`The world was ${era}. Looking back, this was one of the quiet hinges your life turned on.`,
+    choices:[
+      {icon:'🚀',head:'You leaned in and took the risk.',sub:'Say yes. Move first.',tone:'consequence',
+        outcome:`You leaned all the way into this moment and let it change you.`,
+        ripple:`Some of it worked, some didn't, but this you stopped being afraid of the leap.`,
+        line:`The leaps you take when no one's sure are the ones that make you.`},
+      {icon:'🛟',head:'You played it safe.',sub:'Protect what you had.',tone:'dark',
+        outcome:`You chose the safe path and kept what you'd built intact.`,
+        ripple:`Safety is real, and so is the quiet wondering that comes with it. This you learned that "someday" has to become a date on the calendar.`,
+        line:`Safe is a fine place to rest and a sad place to live.`},
+      {icon:'❤️',head:'You chose the people around you.',sub:'Put love over ambition.',tone:'love',
+        outcome:`You made this moment about the people in it, not the prize.`,
+        ripple:`No trophy came, but the people did — and this you learned that a life measured in love is never the smaller life.`,
+        line:`A life poured into people you love is not a smaller life. It's the whole point.`},
+    ]};
+}
+

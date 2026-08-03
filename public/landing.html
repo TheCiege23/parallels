@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PARALLELS — Every Choice Is a Door</title>
+<meta name="description" content="A game about the multiverse of choices. Step into the lives you didn't live — and remember the version of you that made it here chose well.">
+<style>
+  :root{
+    --bg:#05060f; --ink:#eef1ff; --muted:#9aa3c7;
+    --violet:#8b5cf6; --cyan:#22d3ee; --gold:#fbbf24; --rose:#fb7185; --green:#34d399;
+    --line:rgba(255,255,255,.08);
+    --play:https://parallels-production-0bfa.up.railway.app;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  #stars{position:fixed;inset:0;z-index:0;display:block}
+  #glow{position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:
+      radial-gradient(55% 45% at 50% 0%, rgba(139,92,246,.22), transparent 60%),
+      radial-gradient(45% 40% at 85% 20%, rgba(34,211,238,.12), transparent 60%),
+      radial-gradient(45% 45% at 10% 80%, rgba(251,113,133,.10), transparent 60%);}
+  .wrap{position:relative;z-index:2}
+  .container{max-width:1000px;margin:0 auto;padding:0 24px}
+
+  /* nav */
+  .nav{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;
+    max-width:1000px;margin:0 auto;padding:22px 24px}
+  .brandmark{display:flex;align-items:center;gap:11px}
+  .brandmark .name{font-weight:800;letter-spacing:.26em;font-size:15px;
+    background:linear-gradient(90deg,var(--cyan),var(--violet),var(--rose));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .nav .cta-sm{font-weight:700;font-size:14px;border:1px solid var(--line);border-radius:999px;padding:9px 18px;
+    transition:border-color .2s,background .2s}
+  .nav .cta-sm:hover{border-color:rgba(139,92,246,.6);background:rgba(139,92,246,.12)}
+
+  /* hero */
+  .hero{min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px 60px}
+  .logo-lg{width:88px;height:88px;margin-bottom:26px;filter:drop-shadow(0 0 30px rgba(139,92,246,.5))}
+  .h1{font-size:clamp(52px,12vw,120px);font-weight:900;letter-spacing:.03em;line-height:.92;
+    background:linear-gradient(120deg,#fff,#c4b5fd 42%,var(--cyan));
+    -webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 70px rgba(139,92,246,.25)}
+  .tag{margin-top:22px;font-size:clamp(18px,3vw,26px);color:#d7dcff;max-width:640px}
+  .sub{margin-top:16px;font-size:clamp(15px,2vw,18px);color:var(--muted);max-width:600px;line-height:1.65}
+  .cta-row{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center}
+  .btn{cursor:pointer;font:inherit;font-weight:800;border:none;border-radius:999px;padding:17px 40px;font-size:17px;
+    color:#0a0a17;background:linear-gradient(90deg,var(--cyan),var(--violet));
+    box-shadow:0 16px 46px -14px rgba(139,92,246,.9);transition:transform .16s ease,filter .16s ease;display:inline-block}
+  .btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+  .scrollcue{margin-top:54px;color:var(--muted);font-size:12px;letter-spacing:.24em;text-transform:uppercase;opacity:.8}
+
+  /* sections */
+  section{position:relative;padding:80px 0}
+  .eyebrow{color:var(--cyan);font-size:12px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:14px}
+  .h2{font-size:clamp(28px,5vw,44px);font-weight:900;line-height:1.08;max-width:720px}
+  .lede{margin-top:18px;font-size:clamp(16px,2.1vw,20px);color:#cdd4f5;max-width:680px;line-height:1.7}
+
+  .manifesto .h2{background:linear-gradient(120deg,#fff,var(--gold) 70%,var(--rose));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+
+  .modes{display:grid;grid-template-columns:1fr;gap:18px;margin-top:36px}
+  @media(min-width:760px){.modes{grid-template-columns:1fr 1fr 1fr}}
+  .mode{border:1px solid var(--line);border-radius:20px;padding:26px 24px;
+    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+    transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+  .mode:hover{transform:translateY(-4px);border-color:rgba(139,92,246,.5);box-shadow:0 20px 50px -24px rgba(139,92,246,.8)}
+  .mode .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:26px;margin-bottom:16px;
+    background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.22), rgba(139,92,246,.28));border:1px solid rgba(255,255,255,.12)}
+  .mode h3{font-size:20px;font-weight:800;margin-bottom:10px}
+  .mode p{font-size:14.5px;color:var(--muted);line-height:1.6}
+  .mode .tagline2{margin-top:14px;font-size:13px;color:var(--cyan);font-weight:700}
+
+  .packs{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .pack{border:1px solid var(--line);border-radius:999px;padding:10px 16px;font-size:14px;color:#d7dcff;
+    background:rgba(255,255,255,.03)}
+  .pack b{color:#fff}
+
+  .share-band{border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(139,92,246,.10),rgba(34,211,238,.04));text-align:center}
+  .share-band .big{font-size:clamp(26px,5vw,46px);font-weight:900;
+    background:linear-gradient(120deg,var(--cyan),var(--violet),var(--rose));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+
+  .mission{text-align:center}
+  .mission .h2{margin:0 auto}
+  .mission .lede{margin:18px auto 0}
+
+  .final{text-align:center;padding:96px 0 40px}
+  .final .h2{margin:0 auto}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;color:#5b628a;font-size:13px}
+  footer .name{letter-spacing:.24em;font-weight:800;color:var(--muted)}
+
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div id="glow"></div>
+
+<div class="wrap">
+  <nav class="nav">
+    <div class="brandmark">
+      <svg class="logo-sm" width="30" height="30" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+        <defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#22d3ee"/><stop offset=".5" stop-color="#8b5cf6"/><stop offset="1" stop-color="#fb7185"/></linearGradient></defs>
+        <circle cx="50" cy="50" r="34" stroke="url(#lg1)" stroke-width="4" opacity=".55"/>
+        <path d="M50 84 L50 50 M50 50 C50 34 34 30 26 20 M50 50 C50 34 66 30 74 20" stroke="url(#lg1)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <circle cx="26" cy="20" r="5" fill="#22d3ee"/><circle cx="74" cy="20" r="5" fill="#fb7185"/><circle cx="50" cy="84" r="5" fill="#8b5cf6"/>
+      </svg>
+      <span class="name">PARALLELS</span>
+    </div>
+    <a class="cta-sm" href="https://parallels-production-0bfa.up.railway.app/play">Play →</a>
+  </nav>
+
+  <header class="hero">
+    <svg class="logo-lg" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+      <defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#22d3ee"/><stop offset=".5" stop-color="#8b5cf6"/><stop offset="1" stop-color="#fb7185"/></linearGradient></defs>
+      <circle cx="50" cy="50" r="34" stroke="url(#lg2)" stroke-width="3.5" opacity=".5"/>
+      <path d="M50 86 L50 50 M50 50 C50 32 32 28 24 18 M50 50 C50 32 68 28 76 18" stroke="url(#lg2)" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <circle cx="24" cy="18" r="5.5" fill="#22d3ee"/><circle cx="76" cy="18" r="5.5" fill="#fb7185"/><circle cx="50" cy="86" r="5.5" fill="#8b5cf6"/>
+    </svg>
+    <h1 class="h1">PARALLELS</h1>
+    <p class="tag">Every choice is a door. Every door is a universe.</p>
+    <p class="sub">A game about the multiverse of choices. Step into the lives you didn't live — the funny ones, the frightening ones, the ones that break your heart — and remember: the version of you that made it here chose well.</p>
+    <div class="cta-row">
+      <a class="btn" href="https://parallels-production-0bfa.up.railway.app/play">Enter the multiverse →</a>
+      <a class="btn ghost" href="#modes">See how it works</a>
+    </div>
+    <div class="scrollcue">scroll ↓</div>
+  </header>
+
+  <section class="manifesto">
+    <div class="container reveal">
+      <div class="eyebrow">The idea</div>
+      <h2 class="h2">Somewhere, another you made the other choice.</h2>
+      <p class="lede">One text you almost didn't send. One door you almost didn't walk through. One morning you almost stayed in bed. Every life is a quiet multiverse of the choices you nearly made — and PARALLELS lets you step inside them. Not to regret the past, but to feel, in your gut, that the road you're on is yours, and it isn't finished yet.</p>
+    </div>
+  </section>
+
+  <section id="modes">
+    <div class="container">
+      <div class="reveal">
+        <div class="eyebrow">Three ways in</div>
+        <h2 class="h2">Play the multiverse.</h2>
+      </div>
+      <div class="modes">
+        <div class="mode reveal">
+          <div class="ic">🚪</div>
+          <h3>Live the Story</h3>
+          <p>A branching life in four acts. Your choices change what actually happens next — where the road forks, how it ends, and which of ten endings you land. Some you can even continue past.</p>
+          <div class="tagline2">10 endings · real branching</div>
+        </div>
+        <div class="mode reveal">
+          <div class="ic">✦</div>
+          <h3>Change One Thing</h3>
+          <p>Step sideways into another life, alter a single moment, and watch reality rewrite itself in front of you. Pick your flavor — horror, comedy, love, founder, family — across 100+ outcomes.</p>
+          <div class="tagline2">7 packs · 120+ outcomes</div>
+        </div>
+        <div class="mode reveal">
+          <div class="ic">🧬</div>
+          <h3>Your Own Life</h3>
+          <p>Enter your real details — or import your history — and go back to the actual turning points of your life. Make the other choice, grounded in the real world of that year, and see the universe it opens.</p>
+          <div class="tagline2">personalized · real history</div>
+        </div>
+      </div>
+      <div class="packs reveal">
+        <span class="pack">🌌 <b>The Original Mix</b></span>
+        <span class="pack">🩸 <b>Nightmare Fuel</b></span>
+        <span class="pack">😂 <b>Absurd Timelines</b></span>
+        <span class="pack">❤️ <b>The Heart Ones</b></span>
+        <span class="pack">💼 <b>The Founder</b></span>
+        <span class="pack">🏡 <b>The Bloodline</b></span>
+        <span class="pack">🏟️ <b>The Big Leagues</b></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="share-band">
+    <div class="container reveal">
+      <div class="eyebrow" style="justify-content:center">Made to pass on</div>
+      <div class="big">Which universe would YOU build?</div>
+      <p class="lede" style="margin:18px auto 0">Every ending becomes a card you can share — a little trophy from the life you found. Send it to someone you love and see the universe they'd build.</p>
+    </div>
+  </section>
+
+  <section class="mission">
+    <div class="container reveal">
+      <div class="eyebrow" style="justify-content:center">Why it exists</div>
+      <h2 class="h2">Built for anyone who's ever wondered "what if."</h2>
+      <p class="lede">Especially the ones who came up the hard way. PARALLELS hides a small, stubborn kind of hope inside a game: that a single choice can change everything — and that the person reading this has already walked through harder doors than they give themselves credit for. You've got this.</p>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="container reveal">
+      <h2 class="h2">A single choice becomes a universe.</h2>
+      <p class="lede" style="margin:16px auto 30px">This one is yours.</p>
+      <a class="btn" href="https://parallels-production-0bfa.up.railway.app/play">Enter the multiverse →</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <span class="name">PARALLELS</span><br><br>
+      Every choice is a door. Every door is a universe.
+    </div>
+  </footer>
+</div>
+
+<script>
+// starfield
+const canvas=document.getElementById('stars'), ctx=canvas.getContext('2d');
+let stars=[], W, H;
+function resize(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight;
+  const n=Math.min(200,Math.floor(W*H/9000));
+  stars=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random()*.8+.2,r:Math.random()*1.4+.3,tw:Math.random()*6.28})); }
+function tick(){ ctx.clearRect(0,0,W,H);
+  for(const s of stars){ s.tw+=.02*s.z; const a=.35+Math.sin(s.tw)*.35+.3*s.z;
+    ctx.globalAlpha=Math.max(0,Math.min(1,a)); ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,6.28);
+    ctx.fillStyle=s.z>.7?'#c9d4ff':'#8b93c9'; ctx.fill();
+    s.y+=s.z*.05; if(s.y>H){s.y=0;s.x=Math.random()*W;} }
+  ctx.globalAlpha=1; requestAnimationFrame(tick); }
+addEventListener('resize',resize); resize(); requestAnimationFrame(tick);
+// scroll reveal
+const io=new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); },{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
